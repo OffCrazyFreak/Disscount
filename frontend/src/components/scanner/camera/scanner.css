@@ -1,0 +1,7 @@
+/* The finder stays mounted because it hosts the torch and zoom buttons, so only its hardcoded frame is hidden for ScanOverlay. */
+
+.scanner-finder-recolor div[style*="dashed"],
+.scanner-finder-recolor div[style*="239, 68, 68"],
+.scanner-finder-recolor div[style*="#ef4444"] {
+  display: none !important;
+}

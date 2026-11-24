@@ -3,8 +3,10 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 function Dialog({
   ...props
@@ -54,6 +56,8 @@ function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
 }) {
+  const t = useTranslations("ui");
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
@@ -72,7 +76,7 @@ function DialogContent({
             className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 inline-flex size-10 cursor-pointer items-center justify-center rounded-md opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none sm:size-12 [&_svg]:pointer-events-none [&_svg]:size-6 [&_svg]:shrink-0 sm:[&_svg]:size-7"
           >
             <XIcon />
-            <span className="sr-only">Zatvori</span>
+            <span className="sr-only">{t("dialog.close")}</span>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Content>
@@ -90,7 +94,16 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
+function DialogFooter({
+  className,
+  showCloseButton = false,
+  children,
+  ...props
+}: React.ComponentProps<"div"> & {
+  showCloseButton?: boolean;
+}) {
+  const t = useTranslations("ui");
+
   return (
     <div
       data-slot="dialog-footer"
@@ -99,7 +112,14 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      {showCloseButton && (
+        <DialogPrimitive.Close asChild>
+          <Button variant="outline">{t("dialog.close")}</Button>
+        </DialogPrimitive.Close>
+      )}
+    </div>
   );
 }
 

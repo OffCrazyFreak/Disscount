@@ -1,0 +1,289 @@
+# Departments and everyday categories for the product catalogue, read at every import (CatalogTaxonomy).
+#
+# Departments are the six groups of the price display rules (Pravilnik o isticanju bazne cijene, NN 132/2026),
+# which is why most chains file products under them. chainCategories lists each chain's spelling; matching
+# ignores case and accents. A chain category not listed here ("Ostalo", Tommy's "Neprehrana") casts no vote.
+#
+# Categories are tried top to bottom and the first match wins, so narrow ones come before broad ones.
+#   indexable       its hub page may be indexed by search engines; the others are built but kept out
+#   department      where the category belongs; also the product's department when no chain says
+#   alsoIn          other departments a chain may file it under; a product filed elsewhere never matches
+#   chainCategories finer chain groups (Roto, Žabac) that hold only this category; exclude still applies
+#   include         name terms, any one is enough
+#   exclude         name terms that rule the category out
+# Terms are words in order. word* matches any word starting with it (mlijek* takes mlijeko, mlijeka),
+# a leading ^ means the term must open the name, where chains write the product type, and
+# phrases joined by & must all appear in the name, in any order.
+
+departments:
+  - slug: hrana
+    chainCategories:
+      - Hrana
+      - Svježi odjeli
+      - Hlađeno i smrznuto
+      - Slatki i slani program
+      - Namirnice za pripremu jela
+      - Smrznuti program
+      - Osnovne namirnice
+      - Konzervirano
+      - Delikatese - mesne
+      - Delikatese - sir
+      - Mlijeko i mliječni proizvodi
+      - Doručak
+      - "Voće i povrće (PDV 5%): povrće"
+      - "Voće i povrće (PDV 5%): voće"
+      - "Voće i povrće (PDV 5%): suho voćeipovrće"
+      - "Voće i povrće: suho voćeipovrće PDV 5%"
+      - "Voće i povrće: suho voćeipovrće PDV 25%"
+      - Meso svježe (PDV 5%)
+      - Svježe meso
+      - Svježe riba (PDV 5%)
+      - Svježe voće i povrće
+      - Zdrava hrana
+      - Dijabetski i dijetetski pr. zdrava hrana
+      - Specijaliteti i svježa tjestenina
+      - Gastro program
+      - Med
+      - Kruh i pekarski proizvodi
+      - Kruh i pekarski proizvodi s porezom
+      - Jaja svježa
+      - Ulja i masti
+      - Dječja hrana
+      - Keksi, grickalice i slatkiši
+      - Mesni i morski proizvodi
+      - Konzervirana roba i juhe
+      - Smrznuta hrana
+      - Žitarice, tjestenina i prilozi
+      - Umaci i namazi
+      - Začini i pečenje
+      - Priprema kolača
+  - slug: pice
+    chainCategories:
+      - Piće
+      - Pića
+      - Žestoko
+      - Vino
+      - Sokovi
+      - Pivo
+      - Vode
+      - Bezalkoholna pića
+      - Alkoholna pića
+  - slug: kozmetika
+    chainCategories:
+      - Kozmetika
+      - Ljepota i njega
+      - Dekorativna kozmetika
+  - slug: toaletne-potrepstine
+    chainCategories:
+      - Toaletne potrepštine
+  - slug: sredstva-za-ciscenje
+    chainCategories:
+      - Sredstva za čišćenje
+      - Sred. za ćišćenje i održavanje
+  - slug: kucanstvo
+    chainCategories:
+      - Proizvodi za kućanstvo
+      - Kućne potrepštine
+      - Kućanske potrepštine
+      - Papirna, PVC i ostala konfekcija
+
+categories:
+  - slug: hrana-za-ljubimce
+    department: hrana
+    alsoIn: [kucanstvo]
+    include: [^pseca, pseca pasteta, hrana za pse, hrana za mac*, za pse, za mace, za macke, ^whiskas, ^friskies, ^pedigree, ^felix, ^kitekat, ^sheba, ^purina, ^gourmet gold, ^brit care, ^brit premium, ^perfect fit, ^dreamies, ^cesar]
+    exclude: [igrack*, povod*, ogrlic*, zdjel*, posud*, pijes*, sampon, cetk*, krevet*, lezaj*, kavez*, vrecic* za, jastuk*, bazen*, podlog*, ormic*, ovratnik*, lanac, wc, grebalic*, toalet*, transport*, nosiljk*, lopt*, uzic*, oprema, kaput*, majic*, ceslj*, cesalj, sprej, spray, kapi, ampul*, buh*, krpelj*, vrat*, mrez*, posip*, maramic*, vl, rastjeriv*, ultrazvuc*, podl, pel]
+
+  - slug: pelene
+    indexable: true
+    department: toaletne-potrepstine
+    alsoIn: [kozmetika, kucanstvo]
+    include: [pelen*, ^pampers, ^huggies, ^libero, ^babylove pelen*, ^tena, ^molfix, ^pufies, ^ninjamas]
+    exclude: [maram*, vl mar, vlazn*, krem*, uloz*, losion*, ulje, sampon, kupk*, vreci*, zapf, baby born, lutk*, ljub*, igrac*]
+
+  - slug: toaletni-papir
+    department: toaletne-potrepstine
+    alsoIn: [kucanstvo, sredstva-za-ciscenje]
+    include: [toaletni papir, toal pap*, toalet papir, wc papir, toaletnog papira]
+    exclude: [drzac*, osvjez*]
+
+  - slug: pasta-za-zube
+    department: toaletne-potrepstine
+    alsoIn: [kozmetika]
+    include: [pasta za zube, zubna pasta, pasta za zub*, ^colgate, ^signal, ^aquafresh, ^sensodyne, ^elmex, ^parodontax, ^blend a med, z pasta]
+    exclude: [cetkic*, cetka, cet, cetk*, vodic*, konac, tekucin*, ispirac*, sprej, set cetk*]
+
+  - slug: sampon
+    department: kozmetika
+    alsoIn: [toaletne-potrepstine]
+    include: [sampon*, ^samp, shampoo]
+    exclude: [za pse, za mace, za macke, za tepih*, za auto*, za automobil*, auto*, za rucno pranje, tenisic*, sneaker, za obucu, psi, pas, trixie]
+
+  - slug: deterdzent-za-sude
+    department: sredstva-za-ciscenje
+    alsoIn: [kucanstvo]
+    include: [deterdzent za sud*, det za sud*, za pranje sud*, za pranje posud*, za strojno pranje, tablete za perilicu, za perilicu posud*, za perilicu sud*, ^finish, ^somat, ^fairy, ^jar, ^pur, ^calgonit]
+    exclude: [sol, sjaj*, cistac*, osvjez*, za pranje rub*, line, pjena, pjene, stiropor, deo, grover, puric*, cordon, smrz*, cistil*, cis, beck*, chardonnay, vino, spuzv*, krp*, cetk*, rukavic*]
+
+  - slug: deterdzent-za-rublje
+    indexable: true
+    department: sredstva-za-ciscenje
+    alsoIn: [kucanstvo]
+    include: [deterdzent za rub*, deterdzent za pranje rub*, det za rub*, prasak za pranje, gel za pranje rub*, kapsule za pranje rub*, ^ariel, ^persil, ^bonux, ^dash, ^faks, ^rex, ^perwoll, ^tide, ^omo, ^deterdzent, ^det, d za rub*, ^weisser riese, ^weisser r, ^w riese, ^woolite, ^nila]
+    exclude: [omeksiv*, ^lenor, odstranjivac*, ^vanish, maramic*, sapun*, za pod*, za staklo, za sud*, za posud*, za wc, jar, det jar, carli, stain remover, staklo, limun]
+
+  - slug: sladoled
+    department: hrana
+    include: [sladoled, sladoledi, sladoleda, sladoledni, ^magnum, ^cornetto, ^twister, ^snjeguljica, ^ledeni stapic*]
+    exclude: [posip*, aparat*, zdjel*, preljev*, u prahu, kalup*, lego, narukvic*, set, pvc, casa, case, smoby, tvornic*, drven*, igr*, modeli, korneti za, za sladoled, ploc*]
+
+  - slug: smrznuto
+    department: hrana
+    chainCategories: [Smrznuti program, Smrznuta hrana]
+    include: [smrz*, zamrz*, duboko smrz*, ^ledo, ^frikom]
+    exclude: [sladoled*, vrec*, kalup*, posud*, zamrzivac*, led za, kocke leda, slag]
+
+  - slug: jogurt
+    indexable: true
+    department: hrana
+    alsoIn: [pice]
+    include: [jogurt*, ^kefir, kefir, kiselo mlijeko, mlijeko kiselo, mlij kiselo, ^acidofil*, ^jog]
+    exclude: [kultur*, za jogurt, preljev*, keks*, ^cokolad*, ^cok, milka & cokolad*, merci, frutabel*, protein musli, napolitank*, bombon*, vafl*, ^musli, ^muesli, ^pahulj*, maska, krem*, gel, aparat*, cips, s jogurtom, dressing, plocic*, kreker*, biskvit*, sapun*, kolac*, pita, bar, kuhne]
+
+  - slug: mlijeko
+    indexable: true
+    department: hrana
+    alsoIn: [pice]
+    include: [^mlijek*, trajno mlijek*, svjeze mlijek*, uht mlijek*, mlijeko trajno, mlijeko svjeze, kravlje mlijeko, kozje mlijeko, ^mlij, lagano jutro, mlijeko u prahu, dukat & mlijeko, z bregov & mlijeko, zbregov & mlijeko, vindija & mlijeko, meggle & mlijeko, mlijeko & 0 5, mlijeko & 0 9, mlijeko & 1 5, mlijeko & 2 8, mlijeko & 3 2, mlijeko & 3 5, mlijeko & 3 8]
+    exclude: [cokol, namaz, napit, napitak, yfood, alpro, f20, f30, f50, spray, sprej, olival, ruzin*, nan, sun, ecran, kond, nam, tij, zamj, apta, koncentrir*, aptamil, bebimil, hipp, pronutra, nutrilon, milupa, zam, za sun*, spf*, nivea, za tijelo, tijelo, losion*, za lice, za skidanje, sapun*, kupk*, pocetno, formula, kokos*, kondenz*, kava, cappuccino, puding, desert, keks*, napolitank*, bombon*, sladoled*, u prahu, krem*, sir, maska, cistac*]
+
+  - slug: maslac
+    department: hrana
+    include: [^maslac, ^margarin, maslac 82, ^ghee, ^puter, ^dobro jutro, ^margo, ^becel, ^rama, ^vindija maslac, ^dukat maslac]
+    exclude: [kikiriki*, kakao, shea, za tijelo, keks*, cokolad*, badem*, ljesnjak*, orah*, od, pistacij*, indijsk*, namaz, stangic*, pecivo, kroasan*, krem*, vrhnj*, spray, cremefine, slag, usne]
+
+  - slug: sir
+    indexable: true
+    department: hrana
+    chainCategories: [Delikatese - sir]
+    include: [^sir, gauda, gouda, edamer, trapist, mozzarell*, parmezan, grana padano, feta, ^ementaler, cheddar, mascarpone, ricotta, ^skuta, svjezi sir, topljeni sir, sir za, kozji sir, ovcji sir, ^sirni namaz, ^paski sir, ^tvrdi sir, ^polutvrdi sir, ^camembert, ^brie, ^gorgonzola, ^philadelphia, ^zdenka sir, ^president sir]
+    exclude: [cips, kreker*, grickal*, keks*, tjestenin*, ^pizza, burek, pita, umak, snack, sendvic*, rende, ribez, za pse, sirup*, juha, cannelloni, tortellini, ravioli, njoki, girasoli, punjen*, ^vrhnj*, savij*, salata, bruschett*, ristorante, klc pizza, pizza mozzarella, mulini]
+
+  - slug: jaja
+    indexable: true
+    department: hrana
+    chainCategories: [Jaja svježa]
+    include: [^jaja, jaja svjez*, ^svjeza jaja, kokosja jaja, prepelicja jaja, svj jaja, jaja & podn*, jaja & slobodn*, jaja & uzgoj*, jaja & razred]
+    exclude: [cokolad*, kinder, uskrs*, ukras*, boj*, rezac*, kalup*, posud*, drzac*, tjestenin*, bez, plastic*, igrack*, iznenad*, sapun*, set, dekor*, kuhal*, skare, tubi, cvijet*, stap*, polis*, stakl*, mini, vre, vreca, bombon*, cok, usk, cm, fi, 4x6, karo, perla, pistacij*, plisan*, witor*, deko, u jaju, socado, objesit*, oslikan*, kosaric*, 6kom, vafel*, vafl*, majon*]
+
+  - slug: kruh
+    indexable: true
+    department: hrana
+    chainCategories: [Kruh i pekarski proizvodi, Kruh i pekarski proizvodi s porezom]
+    include: [^kruh, kruh, ^tost, ^toast, ^pecivo, ^peciva, ^baguette, ^bageta, ^ciabatta, ^lepinj*, ^zemlick*, ^kifl*, ^raženi kruh]
+    exclude: [mrvic*, toster, kutija, noz, daska, mjesavin*, smjesa, brasno, kvasac, kalup za, kalupi, aparat*, za kruh, kreker*, emmentaler, sir, listic*, kosar*, korp*, bambus, pekac*, okruglic*, mrvice, mjesav*, marcipan*]
+
+  - slug: brasno
+    department: hrana
+    include: [^brasn*, brasno]
+    exclude: [posip*, kalup*, sito, posud*, mjesavina za, smjesa za, stocn*, samotn*, lopatic*]
+
+  - slug: tjestenina
+    department: hrana
+    include: [^tjestenin*, ^tjest, ^tijesto, spaghetti, spageti, spagete, penne, fusilli, fuzili, makaron*, tagliatelle, farfalle, rigatoni, ^rezanci, ^mlinci, tortellini, ravioli, ^barilla, ^pasta zara, ^de cecco, ^granoro]
+    exclude: [lisnat*, za pizz*, za pitu, vucen*, kore, kolac*, umak*, pesto, sos, zacin*, fant, lonac, cjedil*, kuhal*, za kolace, prhko, krumpir, bolognese, ledo, zlic*, kids, breskvic*, babylove, hipp*, s gljivama, grabilic*, bonduelle, povrce]
+
+  - slug: riza
+    department: hrana
+    include: [^riza, riza, rize, basmati, arborio, jasmin riza]
+    exclude: [kreker*, vafl*, kolac*, napitak, puding, mlijecn*, cips, od rize, ocat, ploca, cokol*, desert, na mlijeku, na mli, pilet*, povr*, babylove, hipp*, kas, kasic*, obrok, hit, kakao, djecj*, lampic*, snack, tab, funkcij*, multikolor, pahulj*, bebivit*, baby, gyros, arancini, instant, sirom, cjedil*, 20cm]
+
+  - slug: ulje
+    indexable: true
+    department: hrana
+    chainCategories: [Ulja i masti]
+    include: [^omegol, ulje & omegol, ^ulje & kokos*, ^ulje & wok, ulje za wok, ^ulje & konoplj*, ^kokosovo ulje, ulje & sjemen*, ulje & zvijezda, ulje & komin*, ulje & oleinsk*, ulje & za salat*, ulje & tartuf*, ulje & suncok*, ulje & maslin*, ulje & masl, ulje & bucin*, ulje & repic*, ulje & kukuruz*, ulje & lan*, ulje & sezam*, ulje & palmin*, ulje & za przenje, ulje & za pecenje, ulje & djevicansk*, ^maslinovo ulje, ^suncokretovo ulje, ^bucino ulje, ^extra djevicansko]
+    exclude: [za tijelo, za kosu, za bebe, za masazu, za suncanje, za lice, eter*, motorn*, za motor*, maziv*, za lanac, kozmet*, aroma*, u ulju, lampa, svijec*, difuz*, osvjez*, za drvo, za sjenil*, mirisn*, njeg*, bad, kupk*, usne, edp, tijelo, set, doza, odst*, mrlj*, kapsul*, lanc*, svjetilj*, w40, 15w40, mjenjac*, agri, garden, nikel, kemoplastik*, frulic*, pila, velekem, namaz, bake, rolls]
+
+  - slug: secer
+    department: hrana
+    include: [^secer, smedi secer, secer u prahu, secer kristal, kristalni secer, secer od trske, ^kristal secer, ^sec]
+    exclude: [bez, manje, dodan*, smanjen*, zero, vanil*, sladil*, zamjen*, bombon*, sirup*, posip*, rum, aroma*, limun, naranc*, vata]
+
+  - slug: kava
+    indexable: true
+    department: hrana
+    alsoIn: [pice]
+    chainCategories: ["Kava, instanti i kavovina"]
+    include: [^kava, mljevena kava, kava u zrnu, ^nescafe, ^jacobs, ^barcaffe, ^franck kava, ^franck jubilarna, ^lavazza, ^illy, ^tchibo, ^dallmayr, ^segafredo, ^kimbo, espresso, cappuccino, ^doncafe, instant kava, ^kavovina, kava, kave, kapsul* za kavu, ins kava, ^lor, ^davidoff, ^hausbrandt]
+    exclude: [aparat*, kavomat*, posud*, kuhal*, za kuhanje, salic*, solj*, mlinac, filter papir*, filteri, papirnat*, keks*, cokolad*, sladoled*, liker*, bombon*, tort*, aroma, vrhnj*, mlijeko za kavu, slag, kremer*, zlic*, alpro, sojin*, jogurt*, case, casa, rukavic*, rolad*, praline, shells, pregac*, fascino, den, carap*, hulahop*, vaz*, pvc, boj*, tisk*, ^kruh, dukatos, truffle, servis, sonax, sprej, prot, protein*, sportness, bio sad]
+
+  - slug: caj
+    department: hrana
+    alsoIn: [pice]
+    chainCategories: [Čajevi]
+    include: [^caj, zeleni caj, crni caj, vocni caj, biljni caj, ^teekanne, ^pompadour, ^milford, ^kamilica, ^lipton]
+    exclude: [salic*, solj*, cajnik*, kuhal*, filter*, ledeni, led, ice, arizona, fuze, sredstvo, masnoc*, keks*, kolutic*, kobasic*, napitak, svijec*]
+
+  - slug: voda
+    department: pice
+    chainCategories: [Vode]
+    include: [^voda, mineralna voda, izvorska voda, prirodna mineralna, ^jamnica, ^jana, ^studena, ^aqua viva, ^cetina, ^san benedetto, ^romerquelle, ^radenska, gazirana voda, negazirana voda]
+    exclude: [toaletna, micelar*, za lice, tonik, destilir*, pegl*, kolonjsk*, za usta, oraln*, termaln*, ruzin*, za kosu, parfem*, edt, edp, za staklo, cistac*, boca, filter*, kanta, pistolj*, igrac*, ledeni, ice tea, tonic, ispiranj*, zub*, narancad*, limunad*, rucnik, aloe]
+
+  - slug: sokovi
+    department: pice
+    chainCategories: [Sokovi]
+    include: [^sok, sok od, ^sokovi, nektar, ^juice, ^cockta, coca cola, ^coca, ^pepsi, ^fanta, ^sprite, ^schweppes, ^7up, ^cedevita, ledeni caj, ice tea, ^fructal, ^juicy, ^pago, ^rauch, ^happy day, ^cappy, limunada, ^oranzada, energetsko pice, ^red bull, ^monster, ^smoothie, ^jana ledeni]
+    exclude: [bombon*, gumen*, zele, liker*, rum, vodka, pivo, jogurt*, sladoled*, keks*, cokolad*, aparat*, case, casa, boca, kanta, u soku, u vlastitom soku, kompot*, ruksak, torb*, majic*, pernic*, biljeznic*, prazn*, cipriani, bellini]
+
+  - slug: pivo
+    indexable: true
+    department: pice
+    chainCategories: [Pivo]
+    include: [^pivo, pivo, ^piv, lager, radler, ^ozujsko, ^karlovacko, ^heineken, ^lasko, ^tomislav, ^staropramen, ^stella artois, ^corona, ^tuborg, ^carlsberg, ^becks, ^budweiser, ^kozel, ^paulaner, ^erdinger, ^velebitsko, ^niksicko, ^union, ^zlatorog, ^guinness, ^leffe, ^hoegaarden, ^krusovice, ^pilsner urquell, ^amstel, ^desperados, ^gosser, ^birra moretti, ^pan zlatni, ^pan lager]
+    exclude: [case, casa, casu, otvarac*, sampon, kobasic*, krigl*, cips, prazn*]
+
+  - slug: vino
+    department: pice
+    chainCategories: [Vino]
+    include: [^vino, vino, crno vino, bijelo vino, ^pjenusac, prosecco, ^grasevina, malvazija, plavac, merlot, cabernet, chardonnay, sauvignon, ^teran, ^babic, ^posip, frankovka, zweigelt, dingac, traminac, rizling, muskat, portugizac, ^bermet, ^champagne, ^sampanjac]
+    exclude: [ocat, case, casa, otvarac*, cep*, zacin*, umak*, kobasic*, drzac*, stalak*, svijec*, grozd*, vitrin*, rashladn*, za vino]
+
+  - slug: cokolada
+    department: hrana
+    include: [cokolada, cokolade, cokoladica, cokoladice, ^cok, ^milka, ^dorina, ^kinder cokolada, ^ritter sport, ^toblerone, ^lindt, ^gorenjka, mlijecna cokolada, tamna cokolada]
+    exclude: [keks*, napolitank*, vafl*, puding, napitak, namaz, sladoled*, preljev*, posip*, kakao, jogurt*, pahulj*, musli, muesli, zitaric*, kolac*, tort*, liker*, protein*, krafn*, muffin*, caj, kroasan*, croissant, corny, kasa, zobena, biskvit*, rolls, mrvic*, panet*]
+
+  - slug: keksi
+    department: hrana
+    include: [^keks*, keks, keksi, ^biskvit*, ^napolitank*, ^vafl*, ^petit beurre, ^domacica, ^jaffa, ^oreo, ^leibniz, ^digestive, cajni kolutici, ^medenjac*, ^paprenjac*]
+    exclude: [za pse, kalup*, posud*, kutija, hipp*, mjesavin*, mjes, kreker*]
+
+  - slug: grickalice
+    department: hrana
+    include: [^cips, ^chips, ^flips, ^smoki, ^kikiriki, ^pringles, ^chio, ^kreker*, slani stapici, ^stapici, ^perec*, ^popcorn, ^kokice, ^lays, ^nachos, ^tortilla chips, ^pistacij*]
+    exclude: [maslac, namaz, za ptice, za ptic*, papig*, poslastic*, aparat*, posud*, zdjel*, kalup*, riblj*, za usi, keks*, tago, raznjic*, drven*, za jelo, pilec*, panir*, vk, kanar*, mc cain, mccain, mozzarel*]
+
+  - slug: pahuljice
+    department: hrana
+    include: [^pahulj*, ^musli, ^muesli, ^corn flakes, ^cornflakes, zobene pahuljice, ^granola, ^cini minis, ^chocapic, ^nesquik pahulj*, ^kukuruzne pahuljice, ^zobena kasa]
+    exclude: [za lice, sapun*, kupk*, sampon, za pse, keks*, plocic*, ploc*, napitak, mlijek*, orasast*]
+
+  - slug: kobasice
+    department: hrana
+    chainCategories: [Delikatese - mesne]
+    include: [^kobasic*, kobasica, kobasice, ^hrenovk*, hrenovke, ^safalad*, ^sunka, sunka, sunke, ^salama, ^salam*, ^prsut, ^pancet*, ^slanina, ^narezak, ^mortadel*, ^cajna, ^kulen*, ^kabanos*, ^cabanossi, ^pecenica, ^buncek, ^vratina, ^suha vratina, ^becka, ^frankfurt*]
+    exclude: [pizza, sendvic*, tost*, pecivo, burek, cips, za pse, kroasan*, tjestenin*, umak*, zacin*, noz*, rezalic*, crijev*, crije, juha, grah, kular*, salic*, plisan*, cm]
+
+  - slug: meso
+    department: hrana
+    chainCategories: [Meso svježe (PDV 5%), Svježe meso]
+    include: [^piletina, ^pileci, ^pileca, ^pilece, pileca prsa, pileci file, ^svinjetina, ^svinjski, ^svinjska, ^svinjsko, ^junetina, ^juneci, ^juneca, ^junece, ^teletina, ^teleci, ^telece, mljeveno meso, ^mljeveno, ^puretina, ^pureci, ^pureca, ^purece, ^janjetina, ^cevap*, ^pljeskavic*, ^batak*, ^krilca, ^odrezak, ^kotlet*, ^ramstek, ^biftek]
+    exclude: [pasteta, za pse, za mac*, konzerv*, narezak, kobasic*, hrenovk*, salama, sunka, zacin*, juha, temeljac, kock*, cips, umak, marinad*, vegeta, crijev*, crije, sendvic*, hipp*, kasic*, gastro, vegin*, vegan*, riblj*, paprikas]
+
+  - slug: konzerve
+    department: hrana
+    chainCategories: [Konzervirano]
+    include: [^tuna, tuna u, ^sardin*, ^skus*, ^incun*, u konzervi, konzerv*, ^pasteta, pasteta, mesni dorucak, ^argeta, ^losos u, ^pelat*, pelati]
+    exclude: [otvarac*, za pse, za mac*, macka, mack*, pseca, hummus, namaz, iqf, glazur*, roll, sushi, konzervans*, kore, raznjic*, narez*]

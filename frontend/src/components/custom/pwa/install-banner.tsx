@@ -1,33 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { X, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { usePathname } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
+import { useIsInstallBannerHeld } from "@/components/custom/pwa/install-banner-hold";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 import {
-  installActionLabel,
-  installPitch,
+  installActionLabelKey,
+  installPitchKey,
 } from "@/components/custom/pwa/install-copy";
 import {
   isInstallBannerSnoozed,
   snoozeInstallBanner,
 } from "@/utils/browser/local-storage";
 
-// Dismissible with a 7-day snooze, shown only on browsers that can install.
 export default function InstallBanner() {
+  const t = useTranslations("common");
   const { canShowInstallUI, canInstall, platform, promptInstall } =
     useInstallPrompt();
   const [dismissed, setDismissed] = useState(true);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
+  const isMap = usePathname() === "/map";
+  const isHeld = useIsInstallBannerHeld();
 
   useEffect(() => {
-    // Read the persisted snooze on the client to avoid a hydration mismatch. It
-    // compares a stored timestamp against Date.now(), so neither the value nor the
-    // comparison exists on the server. Starts dismissed, so the banner cannot flash
-    // before the snooze is known.
+    // On the client because it compares against Date.now(); starts dismissed so it cannot flash.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDismissed(isInstallBannerSnoozed());
   }, []);
@@ -46,13 +49,20 @@ export default function InstallBanner() {
     setInstructionsOpen(true);
   }
 
-  if (dismissed || !canShowInstallUI) return null;
+  if (dismissed || !canShowInstallUI || isHeld) return null;
 
   return (
     <>
-      {/* Sits above the bottom nav, which owns the bottom strip below md, and
-          below the sheet it opens */}
-      <div className="fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[var(--z-install-banner)] p-4 md:bottom-0 md:inset-x-auto md:right-4 md:max-w-sm">
+      {/* Above the bottom nav, which owns the bottom strip below md, and below the sheet it opens. */}
+      {/* On the map it sits above the credits and clear of the right side, where the controls and panel are. */}
+      <div
+        data-slot="install-banner"
+        className={cn(
+          "fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[var(--z-install-banner)] p-4 md:bottom-0 md:inset-x-auto md:right-4 md:max-w-sm",
+          isMap &&
+            "bottom-[calc(var(--bottom-nav-total)+2rem)] right-[3.25rem] md:right-auto md:left-0 md:bottom-10",
+        )}
+      >
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-lg">
           <div className="flex items-center gap-3">
             <Image
@@ -64,14 +74,14 @@ export default function InstallBanner() {
             />
 
             <p className="min-w-0 flex-1 text-sm leading-tight">
-              {installPitch(platform)}
+              {t(installPitchKey(platform))}
             </p>
 
             <Button
               size="icon"
               variant="ghost"
               onClick={handleDismiss}
-              aria-label="Zatvori"
+              aria-label={t("install.close")}
               className="-mr-1 -mt-1 shrink-0"
             >
               <X aria-hidden="true" />
@@ -80,7 +90,7 @@ export default function InstallBanner() {
 
           <Button className="w-full" onClick={handleInstall}>
             <Plus aria-hidden="true" className="size-4" />
-            {installActionLabel(platform)}
+            {t(installActionLabelKey(platform))}
           </Button>
         </div>
       </div>

@@ -1,0 +1,49 @@
+import { useFormatter, useTranslations } from "next-intl";
+
+interface IProductsResultsStatusProps {
+  query: string;
+  isPending: boolean;
+  hasError: boolean;
+  total: number;
+  isTruncated: boolean;
+  /** Places with no price for a search that matches elsewhere, empty otherwise */
+  noPriceLocations: string[];
+}
+
+/** Stays mounted, empties while loading and names the search word, so every settled search is read again. */
+export default function ProductsResultsStatus({
+  query,
+  isPending,
+  hasError,
+  total,
+  isTruncated,
+  noPriceLocations,
+}: IProductsResultsStatusProps) {
+  const t = useTranslations("products.list");
+  const format = useFormatter();
+  const trimmedQuery = query.trim();
+  const hasSettledResults = Boolean(trimmedQuery) && !isPending && !hasError;
+
+  if (hasSettledResults && total === 0 && noPriceLocations.length > 0) {
+    return (
+      <p role="status" className="sr-only">
+        {t("noPriceInLocationsText", {
+          count: noPriceLocations.length,
+          locations: format.list(noPriceLocations, { type: "conjunction" }),
+        })}
+      </p>
+    );
+  }
+
+  return (
+    <p role="status" className="sr-only">
+      {hasSettledResults &&
+        t("resultsStatus", {
+          count: total,
+          query: trimmedQuery,
+          // The cap applies before filters, so a filtered-out search can be capped yet empty
+          truncated: isTruncated && total > 0 ? "yes" : "no",
+        })}
+    </p>
+  );
+}

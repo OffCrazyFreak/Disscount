@@ -1,6 +1,8 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import { Minus, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,7 +13,19 @@ interface IStepPair {
   secondary: number;
 }
 
-interface IStepperNumberInputProps {
+/** The id, aria and blur props FormControl and react-hook-form hand the field go to the real input. */
+type FieldInputProps = Pick<
+  ComponentProps<"input">,
+  | "id"
+  | "ref"
+  | "name"
+  | "onBlur"
+  | "aria-describedby"
+  | "aria-invalid"
+  | "aria-required"
+>;
+
+interface IStepperNumberInputProps extends FieldInputProps {
   value: string;
   onChange: (value: string) => void;
   steps: IStepPair;
@@ -19,12 +33,7 @@ interface IStepperNumberInputProps {
   max: number;
   integer?: boolean;
   placeholder?: string;
-  /**
-   * Only for a field with no visible label. aria-label replaces the accessible name
-   * rather than adding to it, so passing one alongside a FormLabel gives the control a
-   * name that shares no words with the text beside it, and speaking the visible label
-   * then fails to reach the field.
-   */
+  /** Only with no visible label, because aria-label replaces the name, so speech would miss the field. */
   ariaLabel?: string;
   className?: string;
 }
@@ -35,8 +44,7 @@ function formatStepAmount(amount: number) {
   return value.startsWith("0.") ? value.slice(1) : value;
 }
 
-// Buttons clamp to min/max; typing may be empty or out of range, and the owning
-// form's zod schema ranges it and blocks an invalid submission.
+// Buttons clamp to min/max; typing may go out of range, and the owning form's zod schema blocks an invalid submission.
 export function StepperNumberInput({
   value,
   onChange,
@@ -47,7 +55,9 @@ export function StepperNumberInput({
   placeholder,
   ariaLabel,
   className,
+  ...fieldProps
 }: IStepperNumberInputProps) {
+  const t = useTranslations("common");
   const parsed = Number.parseFloat(value);
   const current = Number.isFinite(parsed) ? parsed : 0;
 
@@ -64,9 +74,12 @@ export function StepperNumberInput({
         type="button"
         size="icon"
         variant={isSecondary ? "outline" : "primary"}
-        // Announced the way Croatian writes it, so the spoken label matches the
-        // visible one rather than reading a dot-decimal the button never shows.
-        aria-label={`${sign > 0 ? "Povećaj" : "Smanji"} za ${amount.toLocaleString("hr-HR")}`}
+        // A bare ".5" reads poorly aloud, so the label formats the amount through ICU.
+        aria-label={
+          sign > 0
+            ? t("stepper.increase", { amount })
+            : t("stepper.decrease", { amount })
+        }
         className={cn(
           "shrink-0 rounded-full text-lg font-bold",
           isSecondary
@@ -97,6 +110,7 @@ export function StepperNumberInput({
       {renderStep(steps.primary, -1)}
 
       <Input
+        {...fieldProps}
         type="number"
         inputMode="decimal"
         value={value}

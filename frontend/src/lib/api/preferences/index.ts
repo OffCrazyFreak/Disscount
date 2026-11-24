@@ -1,103 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import apiClient from "@/lib/api/api-base";
 import {
-  BulkPinnedPlaceRequest,
-  BulkPinnedStoreRequest,
-  PinnedPlaceDto,
-  PinnedStoreDto,
-} from "@/lib/api/types";
-
-/**
- * Get current user's pinned stores
- */
-export async function getPinnedStores(): Promise<PinnedStoreDto[]> {
-  const response = await apiClient.get<PinnedStoreDto[]>(
-    "/api/pinned-stores/me",
-  );
-  return response.data;
-}
-
-/**
- * Update user's pinned stores (bulk operation)
- */
-export async function updatePinnedStores(
-  data: BulkPinnedStoreRequest,
-): Promise<PinnedStoreDto[]> {
-  const response = await apiClient.put<PinnedStoreDto[]>(
-    "/api/pinned-stores/bulk",
-    data,
-  );
-  return response.data;
-}
-
-/**
- * Get current user's pinned places
- */
-export async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
-  const response = await apiClient.get<PinnedPlaceDto[]>(
-    "/api/pinned-places/me",
-  );
-  return response.data;
-}
-
-/**
- * Update user's pinned places (bulk operation)
- */
-export async function updatePinnedPlaces(
-  data: BulkPinnedPlaceRequest,
-): Promise<PinnedPlaceDto[]> {
-  const response = await apiClient.put<PinnedPlaceDto[]>(
-    "/api/pinned-places/bulk",
-    data,
-  );
-  return response.data;
-}
-
-// React Query hooks
-export function useGetPinnedStores({ enabled = true } = {}) {
-  return useQuery<PinnedStoreDto[], Error>({
-    queryKey: ["pinnedStores"],
-    queryFn: getPinnedStores,
-    enabled,
-  });
-}
-
-export function useUpdatePinnedStores() {
-  const queryClient = useQueryClient();
-  return useMutation<PinnedStoreDto[], Error, BulkPinnedStoreRequest>({
-    mutationFn: updatePinnedStores,
-    onSuccess: () => {
-      // Invalidate the pinnedStores query to refetch when needed
-      queryClient.invalidateQueries({ queryKey: ["pinnedStores"] });
-    },
-  });
-}
-
-export function useGetPinnedPlaces({ enabled = true } = {}) {
-  return useQuery<PinnedPlaceDto[], Error>({
-    queryKey: ["pinnedPlaces"],
-    queryFn: getPinnedPlaces,
-    enabled,
-  });
-}
-
-export function useUpdatePinnedPlaces() {
-  const queryClient = useQueryClient();
-  return useMutation<PinnedPlaceDto[], Error, BulkPinnedPlaceRequest>({
-    mutationFn: updatePinnedPlaces,
-    onSuccess: () => {
-      // Invalidate the pinnedPlaces query to refetch when needed
-      queryClient.invalidateQueries({ queryKey: ["pinnedPlaces"] });
-    },
-  });
-}
+  useGetPinnedPlaces,
+  useGetPinnedStores,
+  useUpdatePinnedPlaces,
+  useUpdatePinnedStores,
+} from "@/lib/api/preferences/hooks";
+import {
+  getPinnedPlaces,
+  getPinnedStores,
+} from "@/lib/api/preferences/queries";
 
 const preferencesService = {
   getPinnedStores,
-  updatePinnedStores,
   getPinnedPlaces,
-  updatePinnedPlaces,
-  // React Query hooks
   useGetPinnedStores,
   useUpdatePinnedStores,
   useGetPinnedPlaces,

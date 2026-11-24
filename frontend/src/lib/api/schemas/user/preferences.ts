@@ -1,0 +1,44 @@
+import { z } from "zod";
+
+const pinnedStoreRequestSchema = z.object({
+  storeApiId: z.string().min(1),
+  storeName: z.string().min(1),
+});
+
+// Own objects, not request extensions, so form rules never reject what the server stored.
+export const pinnedStoreDtoSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  storeApiId: z.string(),
+  storeName: z.string(),
+});
+
+export const bulkPinnedStoreRequestSchema = z.object({
+  stores: z.array(pinnedStoreRequestSchema),
+});
+
+const pinnedPlaceRequestSchema = z.object({
+  placeApiId: z.string().min(1),
+  placeName: z.string().min(1),
+});
+
+export const pinnedPlaceDtoSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  placeApiId: z.string(),
+  placeName: z.string(),
+});
+
+export const bulkPinnedPlaceRequestSchema = z.object({
+  places: z.array(pinnedPlaceRequestSchema),
+});
+
+export type PinnedStoreDto = z.infer<typeof pinnedStoreDtoSchema>;
+export type BulkPinnedStoreRequest = z.infer<
+  typeof bulkPinnedStoreRequestSchema
+>;
+
+export type PinnedPlaceDto = z.infer<typeof pinnedPlaceDtoSchema>;
+export type BulkPinnedPlaceRequest = z.infer<
+  typeof bulkPinnedPlaceRequestSchema
+>;

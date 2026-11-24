@@ -1,0 +1,216 @@
+{
+  "notFound": {
+    "meta": {
+      "title": "Page not found (404)",
+      "description": "The page you're looking for doesn't exist."
+    },
+    "heading": "Hmm… this is awkward. 😅",
+    "description": "It looks like the page <path></path> doesn't exist.",
+    "hint": "Let's head back to the home page together, or report a bug!",
+    "backHome": "Back to home"
+  },
+  "offline": {
+    "meta": {
+      "title": "No internet connection",
+      "description": "You're offline right now."
+    },
+    "title": "No internet connection 📡",
+    "description": "You're offline right now. Your saved lists, watchlist and recently viewed products are still available.",
+    "hint": "Check your connection and try again.",
+    "retry": "Try again",
+    "indicator": "Offline: showing saved data.",
+    "indicatorPending": "Offline: {count, plural, one {# change is} other {# changes are}} waiting to save.",
+    "notSaved": "This page isn't saved for offline use yet. Open it once while you're online, and it will be here without a connection too."
+  },
+  "lastSynced": {
+    "refreshed": "Refreshed {time}"
+  },
+  "comingSoon": {
+    "badge": "SOON",
+    "description": "We're working on it. Coming soon!",
+    "notifyMe": "Notify me"
+  },
+  "copyButton": {
+    "error": "Couldn't copy."
+  },
+  "footer": {
+    "copyright": "© {year} Jakov Jakovac",
+    "comingSoonLabel": "{label} (soon)",
+    "comingSoonTitle": "Soon"
+  },
+  "inboxNotice": {
+    "spamHint": "Check your spam folder too."
+  },
+  "loginRequired": {
+    "description": "Sign in to use this.",
+    "action": "Sign in"
+  },
+  "noResults": {
+    "title": "No results",
+    "description": "Try a different term."
+  },
+  "oauthError": {
+    "emailNotFound": "Your Facebook account didn't share an email address. Sign in with email, or with a Facebook account that has one.",
+    "emailMismatch": "That account uses a different email address. You can only link accounts with the same address.",
+    "alreadyLinked": "That account is already linked to another Disscount account.",
+    "notLinked": "We can't link this sign-in to your account on our own. Sign in as usual, then link it in your security settings.",
+    "restart": "The sign-in expired or was interrupted. Try again.",
+    "default": "Couldn't sign you in. Try again."
+  },
+  "userAvatar": {
+    "alt": "Avatar"
+  },
+  "contact": {
+    "channels": {
+      "intro": "Send us a message with the form below, email us directly at <email></email> or message us on <linkedin>LinkedIn</linkedin>.",
+      "copyEmailLabel": "Copy email address",
+      "copyEmailSuccess": "Email address copied!",
+      "copyEmailError": "Couldn't copy.",
+      "suggestIdea": "Suggest an idea",
+      "openSuggestions": "Open Ideas and suggestions",
+      "reportBug": "Report a bug",
+      "openBugReport": "Open bug report"
+    },
+    "form": {
+      "email": "Email",
+      "emailPlaceholder": "you@email.com",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Your name",
+      "subject": "Subject",
+      "subjectPlaceholder": "E.g. A question about Disscount",
+      "message": "Message",
+      "messagePlaceholder": "Tell us how we can help",
+      "charactersLeft": "{count, plural, one {# character left} other {# characters left}}"
+    },
+    "modal": {
+      "title": "Get in touch",
+      "description": "Write to us with the form below, or contact us directly.",
+      "submit": "Send message",
+      "cancel": "Cancel",
+      "reset": "Reset",
+      "sent": "Message sent. Thanks for getting in touch!",
+      "sentWithEmail": "Message sent. Thanks for getting in touch! If needed, we'll reply to that email.",
+      "sourceAvailable": "Disscount is source-available. <link>See the project on GitHub</link>."
+    }
+  },
+  "donation": {
+    "title": "Support Disscount",
+    "intro": "Disscount is free and will stay that way. If it makes your shopping easier, any support means a lot to us.",
+    "usage": "Everything goes into running and building Disscount.",
+    "kofi": "Support on Ko-fi"
+  },
+  "forgotPassword": {
+    "link": "Forgot your password?",
+    "sending": "Sending..."
+  },
+  "multiSelect": {
+    "optionsList": "List of options",
+    "selectAll": "Select all",
+    "clearAll": "Clear all",
+    "selected": "{count} selected"
+  },
+  "passwordInput": {
+    "show": "Show password",
+    "hide": "Hide password"
+  },
+  "stepper": {
+    "increase": "Increase by {amount, number}",
+    "decrease": "Decrease by {amount, number}"
+  },
+  "notifications": {
+    "label": "Notifications",
+    "labelWithCount": "Notifications ({count})",
+    "loading": "Loading...",
+    "emptyWatching": "None of the products you watch are discounted today.",
+    "emptyNotWatching": "Add products to your watchlist and we'll let you know when they're discounted in your stores.",
+    "addProducts": "Add products",
+    "totalSavings": "Total saved today:",
+    "savingsDetail": "(≥ {amount} on {count, plural, one {# product} other {# products}})"
+  },
+  "install": {
+    "actionDesktop": "Install app",
+    "actionMobile": "Add to Home Screen",
+    "pitchDesktop": "Install Disscount for quicker access.",
+    "pitchMobile": "Add Disscount to your Home Screen for quicker access.",
+    "close": "Close",
+    "unsupportedTitle": "This browser can't install apps",
+    "unsupportedText": "Open Disscount in another browser, such as Google Chrome, to add it to your device.",
+    "perkTitle": "Install as an app",
+    "perkDesktop": "No app store download needed: install Disscount straight from your browser.",
+    "perkMobile": "No app store download needed: add Disscount to your Home Screen straight from your browser.",
+    "sheetDescriptionDesktop": "Install Disscount on your computer in a few steps.",
+    "sheetDescriptionMobile": "Add Disscount to your Home Screen in a few steps.",
+    "steps": {
+      "iosMenu": "Tap <ellipsis></ellipsis> next to the address bar, then <share></share> <b>Share</b>. On older iPhones, <b>Share</b> is right there in the toolbar.",
+      "iosAdd": "Scroll down the menu and choose <plus></plus> <b>Add to Home Screen</b>.",
+      "confirmAdd": "Confirm with <b>Add</b>.",
+      "macFile": "Open the <b>File</b> menu in the menu bar at the top of your screen.",
+      "macDock": "Choose <dock></dock> <b>Add to Dock</b>.",
+      "androidMenu": "Tap <vdots></vdots> to open the browser menu.",
+      "androidChoose": "Choose <download></download> <b>Install app</b> or <b>Add to Home Screen</b>, depending on your browser.",
+      "confirmInstall": "Confirm with <b>Install</b>.",
+      "desktopIcon": "Click <monitor></monitor> on the right side of the address bar.",
+      "desktopMenu": "If you don't see that icon, open the <vdots></vdots> menu, then <b>Save and share</b> › <b>Install page as app</b>."
+    }
+  },
+  "appUpdate": {
+    "message": "A new version of Disscount is ready.",
+    "reload": "Reload"
+  },
+  "validation": {
+    "fullNameMax": "Your name can be up to 255 characters",
+    "subjectRequired": "Enter a subject",
+    "subjectMax": "Subject can be up to 255 characters",
+    "messageRequired": "Write a message",
+    "messageMax": "Message can be up to 5000 characters"
+  },
+  "distanceSort": {
+    "locating": "Finding your location to sort by distance…",
+    "ready": "Sorted by distance from your location. We don't store or send it.",
+    "readyFromTown": "Sorted from {town}.",
+    "readyFromSavedPlace": "No location: sorted from {town}.",
+    "denied": "We don't have location access, so the default order stays. Allow it in your browser settings and choose distance again.",
+    "unavailable": "Your location isn't available right now, so the default order stays. Choose distance again to retry.",
+    "timeout": "We can't find your location, so the default order stays. Check that location is on for your device and choose distance again.",
+    "noStores": "Store locations aren't available right now, so the default order stays.",
+    "nearestName": "Nearest store, {distance}: {store}",
+    "pickTown": "Pick a town",
+    "changeTown": "Change",
+    "changeTownLabel": "Change town",
+    "townSearch": "Search a town or postcode",
+    "townList": "Towns with stores",
+    "townEmpty": "No town with stores matches that."
+  },
+  "towns": {
+    "withCounty": "{town} ({county})",
+    "counties": {
+      "cityOfZagreb": "City of Zagreb",
+      "zagrebCounty": "Zagreb County",
+      "krapinaZagorje": "Krapina-Zagorje",
+      "sisakMoslavina": "Sisak-Moslavina",
+      "karlovac": "Karlovac",
+      "varazdin": "Varaždin",
+      "koprivnicaKrizevci": "Koprivnica-Križevci",
+      "bjelovarBilogora": "Bjelovar-Bilogora",
+      "primorjeGorskiKotar": "Primorje-Gorski Kotar",
+      "likaSenj": "Lika-Senj",
+      "viroviticaPodravina": "Virovitica-Podravina",
+      "pozegaSlavonia": "Požega-Slavonia",
+      "brodPosavina": "Brod-Posavina",
+      "zadar": "Zadar",
+      "osijekBaranja": "Osijek-Baranja",
+      "sibenikKnin": "Šibenik-Knin",
+      "vukovarSrijem": "Vukovar-Srijem",
+      "splitDalmatia": "Split-Dalmatia",
+      "istria": "Istria",
+      "dubrovnikNeretva": "Dubrovnik-Neretva",
+      "medimurje": "Međimurje"
+    }
+  },
+  "sectionNav": {
+    "stores": "Prices by store",
+    "storesShort": "Stores",
+    "priceHistory": "Price history",
+    "priceHistoryShort": "History"
+  }
+}

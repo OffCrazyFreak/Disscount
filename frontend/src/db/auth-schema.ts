@@ -1,15 +1,18 @@
 import { relations, sql } from "drizzle-orm";
 import {
-  pgTable,
   text,
   timestamp,
   boolean,
   uuid,
+  bigint,
+  integer,
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-export const user = pgTable("user", {
+import { authPgSchema } from "@/db/pg-schemas";
+
+export const user = authPgSchema.table("user", {
   id: uuid("id")
     .default(sql`pg_catalog.gen_random_uuid()`)
     .primaryKey(),
@@ -17,6 +20,10 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  // BCP 47 language tag (hr, en, it, sl, de); null until the person picks one.
+  locale: text("locale"),
+  // Stamped on every new session, because better-auth deletes session rows on sign-out and expiry.
+  lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -24,7 +31,7 @@ export const user = pgTable("user", {
     .notNull(),
 });
 
-export const session = pgTable(
+export const session = authPgSchema.table(
   "session",
   {
     id: uuid("id")
@@ -38,6 +45,8 @@ export const session = pgTable(
       .notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
+    // ISO 3166 alpha-2 from Cloudflare at sign-in; shown instead of the IP address.
+    country: text("country"),
     userId: uuid("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -45,7 +54,7 @@ export const session = pgTable(
   (table) => [index("session_userId_idx").on(table.userId)],
 );
 
-export const account = pgTable(
+export const account = authPgSchema.table(
   "account",
   {
     id: uuid("id")
@@ -77,7 +86,7 @@ export const account = pgTable(
   ],
 );
 
-export const verification = pgTable(
+export const verification = authPgSchema.table(
   "verification",
   {
     id: uuid("id")
@@ -95,7 +104,7 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const jwks = pgTable("jwks", {
+export const jwks = authPgSchema.table("jwks", {
   id: uuid("id")
     .default(sql`pg_catalog.gen_random_uuid()`)
     .primaryKey(),
@@ -103,6 +112,18 @@ export const jwks = pgTable("jwks", {
   privateKey: text("private_key").notNull(),
   createdAt: timestamp("created_at").notNull(),
   expiresAt: timestamp("expires_at"),
+  alg: text("alg"),
+  crv: text("crv"),
+});
+
+// better-auth's rateLimit model (rateLimit.storage "database"); keys are "<ip>|<path>".
+export const rateLimit = authPgSchema.table("rate_limit", {
+  id: uuid("id")
+    .default(sql`pg_catalog.gen_random_uuid()`)
+    .primaryKey(),
+  key: text("key").notNull().unique(),
+  count: integer("count").notNull(),
+  lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 });
 
 export const userRelations = relations(user, ({ many }) => ({

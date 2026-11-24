@@ -1,0 +1,6 @@
+# Gitignored files copied into every new worktree, .gitignore syntax.
+# Only files that match AND are gitignored are copied, so tracked files
+# are never duplicated. This lists the names of secrets, not the secrets.
+.env
+backend/.env
+frontend/.env.local

@@ -1,0 +1,37 @@
+{
+  "dialog": { "close": "Zapri" },
+  "command": {
+    "title": "Paleta ukazov",
+    "description": "Poišči ukaz za zagon..."
+  },
+  "sidebar": {
+    "mobileTitle": "Stranska vrstica",
+    "mobileDescription": "Prikaže stransko vrstico na telefonu.",
+    "toggle": "Prikaži ali skrij stransko vrstico"
+  },
+  "share": {
+    "copied": "Povezava je kopirana",
+    "failed": "Deljenje ni uspelo"
+  },
+  "toaster": { "label": "Sporočila" },
+  "offline": {
+    "writeFailed": "Spremembe ni bilo mogoče shraniti. Poskusi znova.",
+    "writeFailedLostAccess": "Spremembe ni bilo mogoče shraniti. Morda nimaš več dostopa do tega seznama.",
+    "retiredWriteDropped": "Spremembe iz starejše različice aplikacije ni bilo mogoče shraniti. Odpri seznam in preveri."
+  },
+  "limitReached": {
+    "title": "Ni več prostora",
+    "description": {
+      "SHOPPING_LISTS": "{max, plural, one {Imaš lahko največ # nakupovalni seznam.} two {Imaš lahko največ # nakupovalna seznama.} few {Imaš lahko največ # nakupovalne sezname.} other {Imaš lahko največ # nakupovalnih seznamov.}}",
+      "SHOPPING_LIST_ITEMS": "{max, plural, one {Seznam ima lahko največ # izdelek.} two {Seznam ima lahko največ # izdelka.} few {Seznam ima lahko največ # izdelke.} other {Seznam ima lahko največ # izdelkov.}}",
+      "WATCHLIST_ITEMS": "{max, plural, one {Spremljaš lahko največ # izdelek.} two {Spremljaš lahko največ # izdelka.} few {Spremljaš lahko največ # izdelke.} other {Spremljaš lahko največ # izdelkov.}}",
+      "DIGITAL_CARDS": "{max, plural, one {Imaš lahko največ # kartico.} two {Imaš lahko največ # kartici.} few {Imaš lahko največ # kartice.} other {Imaš lahko največ # kartic.}}",
+      "PRODUCT_PHOTOS": "{max, plural, one {Skupaj lahko dodaš največ # sliko izdelka.} two {Skupaj lahko dodaš največ # sliki izdelkov.} few {Skupaj lahko dodaš največ # slike izdelkov.} other {Skupaj lahko dodaš največ # slik izdelkov.}}",
+      "PRODUCT_PHOTOS_PER_DAY": "{max, plural, one {Na dan lahko dodaš največ # sliko izdelka.} two {Na dan lahko dodaš največ # sliki izdelkov.} few {Na dan lahko dodaš največ # slike izdelkov.} other {Na dan lahko dodaš največ # slik izdelkov.}}",
+      "PRODUCT_PHOTOS_PER_PRODUCT": "{max, plural, one {Za en izdelek lahko dodaš največ # sliko.} two {Za en izdelek lahko dodaš največ # sliki.} few {Za en izdelek lahko dodaš največ # slike.} other {Za en izdelek lahko dodaš največ # slik.}}"
+    },
+    "contactHint": "Če jih potrebuješ več, nam piši.",
+    "contact": "Piši podpori",
+    "close": "Zapri"
+  }
+}

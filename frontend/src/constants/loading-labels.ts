@@ -1,24 +1,18 @@
-/**
- * Pending copy for buttons that wait on a network or database call.
- *
- * Verbal noun plus ellipsis, matching the existing "Prijava..." wording. Keep
- * these short: they replace a button's label in place, and a longer string
- * would reflow a modal footer on a narrow phone.
- */
+/** Short because these replace a button's label, and longer text reflows a modal footer on a phone. */
 export const LOADING_LABELS = {
-  saving: "Spremanje...",
-  creating: "Stvaranje...",
-  adding: "Dodavanje...",
-  updating: "Ažuriranje...",
-  deleting: "Brisanje...",
-  restoring: "Vraćanje...",
-  sending: "Slanje...",
-  copying: "Kopiranje...",
-  sharing: "Dijeljenje...",
-  settingUp: "Postavljanje...",
-  signingIn: "Prijava...",
-  signingOut: "Odjava...",
-  registering: "Registracija...",
-  linking: "Povezivanje...",
-  unlinking: "Odspajanje...",
+  saving: "loading.saving",
+  creating: "loading.creating",
+  adding: "loading.adding",
+  updating: "loading.updating",
+  deleting: "loading.deleting",
+  restoring: "loading.restoring",
+  sending: "loading.sending",
+  copying: "loading.copying",
+  sharing: "loading.sharing",
+  settingUp: "loading.settingUp",
+  signingIn: "loading.signingIn",
+  signingOut: "loading.signingOut",
+  registering: "loading.registering",
+  linking: "loading.linking",
+  unlinking: "loading.unlinking",
 } as const;

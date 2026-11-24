@@ -1,0 +1,23 @@
+export type LinkStatus = "ok" | "broken" | "unverified";
+
+/** Only a site's own 404 or 410 counts as broken; bot walls, rate limits and outages prove nothing. */
+export function linkStatusOf(httpStatus: number | null): LinkStatus {
+  if (httpStatus === 404 || httpStatus === 410) return "broken";
+  if (httpStatus !== null && httpStatus >= 200 && httpStatus < 400) return "ok";
+
+  return "unverified";
+}
+
+export function linksByHost(urls: Iterable<string>): string[][] {
+  const groups = new Map<string, string[]>();
+
+  for (const url of urls) {
+    if (!URL.canParse(url)) continue;
+
+    const host = new URL(url).host;
+
+    groups.set(host, [...(groups.get(host) ?? []), url]);
+  }
+
+  return [...groups.values()];
+}

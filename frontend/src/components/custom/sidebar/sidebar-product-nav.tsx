@@ -1,13 +1,13 @@
 "use client";
 
+import { usePathname } from "@/i18n/navigation";
 import { Suspense, useState } from "react";
-import { usePathname } from "next/navigation";
 import { SidebarMenuItem, SidebarMenuSub } from "@/components/ui/sidebar";
 import SidebarProductNavShell from "@/components/custom/sidebar/sidebar-product-nav-shell";
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
 import SidebarFilterMenu from "@/components/custom/sidebar/sidebar-filter-menu";
 import SidebarFilterMenuSkeleton from "@/components/custom/sidebar/sidebar-filter-menu-skeleton";
-import { useSidebarFilterOptions } from "@/hooks/use-sidebar-filter-options";
+import { useSidebarFilterOptions } from "@/hooks/state/use-sidebar-filter-options";
 import {
   productNavItems,
   PLACEHOLDER_HREF,
@@ -15,12 +15,11 @@ import {
   isNavItemLocked,
 } from "@/constants/navigation";
 import { useUser } from "@/context/user-context";
-import { readListParam } from "@/utils/generic";
-import { useClientSearchParams } from "@/hooks/use-client-search-params";
+import { readListParam } from "@/utils/format/generic";
+import { useClientSearchParams } from "@/hooks/state/use-client-search-params";
 
 type OpenSection = "stores" | "locations" | null;
 
-/** Ways into the product catalogue: discounts, the map and its filters. */
 export default function SidebarProductNav() {
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
   const pathname = usePathname();

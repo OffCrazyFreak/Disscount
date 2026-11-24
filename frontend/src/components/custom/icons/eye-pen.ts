@@ -1,10 +1,6 @@
 import { createPenBadgeIcon } from "@/components/custom/icons/pen-badge";
 
-/**
- * Lucide's eye, badged with a pen. Says "you already track this, and the button edits
- * that", where the eye-off it replaced read as "stop watching", which the button does
- * not do.
- */
+/** An eye-off would read as "stop watching", which the button does not do. */
 const EyePen = createPenBadgeIcon("eye-pen", [
   [
     "path",

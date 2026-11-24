@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
@@ -9,42 +10,47 @@ import NotificationSwitchRow from "@/components/custom/settings/components/notif
 const SWITCHES = [
   {
     name: "notificationsPush",
-    label: "Dopusti obavijesti aplikacije",
-    description:
-      "Na mobilnu aplikaciju ćeš dobiti obavijesti za akcije isključivo o proizvodima koje odabereš, bez spama.",
+    labelKey: "notifications.push.label",
+    descriptionKey: "notifications.push.description",
     comingSoon: true,
   },
   {
     name: "notificationsEmail",
-    label: "Dopusti email obavijesti",
-    description:
-      "Na email ćeš dobiti obavijesti za akcije isključivo o proizvodima koje odabereš, bez spama.",
+    labelKey: "notifications.email.label",
+    descriptionKey: "notifications.email.description",
     comingSoon: true,
   },
   {
     name: "newsletter",
-    label: "Novosti i ažuriranja",
-    description: "Povremene novosti o Disscountu na tvoj email, bez spama.",
+    labelKey: "notifications.newsletter.label",
+    descriptionKey: "notifications.newsletter.description",
     comingSoon: true,
   },
   {
     name: "feedbackContact",
-    label: "Kontakt za povratne informacije",
-    description:
-      "Dopusti da ti se javimo za povratne informacije o aplikaciji.",
+    labelKey: "notifications.feedback.label",
+    descriptionKey: "notifications.feedback.description",
   },
 ] as const;
 
 export default function NotificationsTab() {
+  const t = useTranslations("settings");
+
   return (
     <SettingsSection
       icon={Bell}
-      label="Obavijesti"
-      hint="Odaberi kako, o čemu i kada želiš primati obavijesti o akcijama i novostima."
+      label={t("tabs.notifications")}
+      hint={t("notifications.hint")}
     >
       <StaggerChildren className="divide-y">
-        {SWITCHES.map((props) => (
-          <NotificationSwitchRow key={props.name} {...props} />
+        {SWITCHES.map((item) => (
+          <NotificationSwitchRow
+            key={item.name}
+            name={item.name}
+            label={t(item.labelKey)}
+            description={t(item.descriptionKey)}
+            comingSoon={"comingSoon" in item}
+          />
         ))}
       </StaggerChildren>
     </SettingsSection>

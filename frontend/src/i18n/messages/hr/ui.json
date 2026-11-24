@@ -1,0 +1,37 @@
+{
+  "dialog": { "close": "Zatvori" },
+  "command": {
+    "title": "Paleta naredbi",
+    "description": "Pretraži naredbu za pokretanje..."
+  },
+  "sidebar": {
+    "mobileTitle": "Bočna traka",
+    "mobileDescription": "Prikazuje bočnu traku na mobitelu.",
+    "toggle": "Prikaži ili sakrij bočnu traku"
+  },
+  "share": {
+    "copied": "Poveznica je kopirana",
+    "failed": "Dijeljenje nije uspjelo"
+  },
+  "toaster": { "label": "Poruke" },
+  "offline": {
+    "writeFailed": "Promjena nije spremljena. Pokušaj ponovno.",
+    "writeFailedLostAccess": "Promjena nije spremljena. Možda više nemaš pristup ovom popisu.",
+    "retiredWriteDropped": "Promjena iz starije verzije aplikacije nije spremljena. Otvori popis i provjeri."
+  },
+  "limitReached": {
+    "title": "Nema više mjesta",
+    "description": {
+      "SHOPPING_LISTS": "{max, plural, one {Možeš imati najviše # popis za kupnju.} few {Možeš imati najviše # popisa za kupnju.} other {Možeš imati najviše # popisa za kupnju.}}",
+      "SHOPPING_LIST_ITEMS": "{max, plural, one {Popis može imati najviše # proizvod.} few {Popis može imati najviše # proizvoda.} other {Popis može imati najviše # proizvoda.}}",
+      "WATCHLIST_ITEMS": "{max, plural, one {Možeš pratiti najviše # proizvod.} few {Možeš pratiti najviše # proizvoda.} other {Možeš pratiti najviše # proizvoda.}}",
+      "DIGITAL_CARDS": "{max, plural, one {Možeš imati najviše # karticu.} few {Možeš imati najviše # kartice.} other {Možeš imati najviše # kartica.}}",
+      "PRODUCT_PHOTOS": "{max, plural, one {Ukupno možeš dodati najviše # sliku proizvoda.} few {Ukupno možeš dodati najviše # slike proizvoda.} other {Ukupno možeš dodati najviše # slika proizvoda.}}",
+      "PRODUCT_PHOTOS_PER_DAY": "{max, plural, one {Dnevno možeš dodati najviše # sliku proizvoda.} few {Dnevno možeš dodati najviše # slike proizvoda.} other {Dnevno možeš dodati najviše # slika proizvoda.}}",
+      "PRODUCT_PHOTOS_PER_PRODUCT": "{max, plural, one {Za jedan proizvod možeš dodati najviše # sliku.} few {Za jedan proizvod možeš dodati najviše # slike.} other {Za jedan proizvod možeš dodati najviše # slika.}}"
+    },
+    "contactHint": "Ako ti treba više, javi nam se.",
+    "contact": "Piši podršci",
+    "close": "Zatvori"
+  }
+}

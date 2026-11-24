@@ -5,7 +5,6 @@ interface ILegalSectionProps {
   children: ReactNode;
 }
 
-// A titled section within a legal page, kept consistent across all three pages.
 export default function LegalSection({
   heading,
   children,

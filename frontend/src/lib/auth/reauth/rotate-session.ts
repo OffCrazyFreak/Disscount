@@ -1,0 +1,35 @@
+import "server-only";
+
+import { APIError } from "better-auth/api";
+import { setSessionCookie } from "better-auth/cookies";
+import type { GenericEndpointContext, Session, User } from "better-auth";
+
+interface ISignedInContext extends GenericEndpointContext {
+  context: GenericEndpointContext["context"] & {
+    session: { session: Session; user: User };
+  };
+}
+
+/** Freshness counts from session.createdAt only, so this restarts the clock; OWASP asks for a new id too. */
+export async function rotateSession(ctx: ISignedInContext): Promise<void> {
+  const { session, user } = ctx.context.session;
+  const dontRememberMe = Boolean(
+    await ctx.getSignedCookie(
+      ctx.context.authCookies.dontRememberToken.name,
+      ctx.context.secret,
+    ),
+  );
+
+  const renewed = await ctx.context.internalAdapter.createSession(
+    user.id,
+    dontRememberMe,
+  );
+  if (!renewed) {
+    throw new APIError("INTERNAL_SERVER_ERROR", {
+      message: "Failed to renew the session",
+    });
+  }
+
+  await setSessionCookie(ctx, { session: renewed, user }, dontRememberMe);
+  await ctx.context.internalAdapter.deleteSession(session.token);
+}

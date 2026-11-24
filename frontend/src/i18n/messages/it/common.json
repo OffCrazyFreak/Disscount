@@ -1,0 +1,216 @@
+{
+  "notFound": {
+    "meta": {
+      "title": "404: pagina non trovata",
+      "description": "La pagina che cerchi non esiste."
+    },
+    "heading": "Hmm… che imbarazzo. 😅",
+    "description": "Sembra che la pagina <path></path> non esista.",
+    "hint": "Torniamo insieme alla home, oppure segnala un errore!",
+    "backHome": "Torna alla home"
+  },
+  "offline": {
+    "meta": {
+      "title": "Nessuna connessione a internet",
+      "description": "Al momento sei offline."
+    },
+    "title": "Nessuna connessione a internet 📡",
+    "description": "Al momento sei offline. Le liste salvate, i prodotti seguiti e quelli visti di recente restano disponibili.",
+    "hint": "Controlla la connessione e riprova.",
+    "retry": "Riprova",
+    "indicator": "Offline: stai vedendo i dati salvati.",
+    "indicatorPending": "Offline: {count, plural, one {# modifica in attesa} other {# modifiche in attesa}} di salvataggio.",
+    "notSaved": "Questa pagina non è ancora salvata per l'uso offline. Aprila una volta mentre sei online e la troverai anche senza connessione."
+  },
+  "lastSynced": {
+    "refreshed": "Aggiornato {time}"
+  },
+  "comingSoon": {
+    "badge": "PRESTO",
+    "description": "Ci stiamo lavorando. Arriva presto!",
+    "notifyMe": "Avvisami"
+  },
+  "copyButton": {
+    "error": "Copia non riuscita."
+  },
+  "footer": {
+    "copyright": "© {year} Jakov Jakovac",
+    "comingSoonLabel": "{label} (presto)",
+    "comingSoonTitle": "Presto"
+  },
+  "inboxNotice": {
+    "spamHint": "Controlla anche la cartella spam."
+  },
+  "loginRequired": {
+    "description": "Per questo devi accedere.",
+    "action": "Accedi"
+  },
+  "noResults": {
+    "title": "Nessun risultato",
+    "description": "Prova con un altro termine."
+  },
+  "oauthError": {
+    "emailNotFound": "Il tuo account Facebook non ha condiviso l'indirizzo email. Accedi con l'email o con un account Facebook che ne ha uno.",
+    "emailMismatch": "Quell'account usa un altro indirizzo email. Puoi collegare solo account con lo stesso indirizzo.",
+    "alreadyLinked": "Questo account è già collegato a un altro account Disscount.",
+    "notLinked": "Non possiamo collegare automaticamente questo accesso al tuo account. Accedi come al solito e poi collegalo nelle impostazioni di sicurezza.",
+    "restart": "L'accesso è scaduto o è stato interrotto. Riprova.",
+    "default": "Accesso non riuscito. Riprova."
+  },
+  "userAvatar": {
+    "alt": "Foto profilo"
+  },
+  "contact": {
+    "channels": {
+      "intro": "Scrivici con il modulo qui sotto, direttamente a <email></email> o su <linkedin>LinkedIn</linkedin>.",
+      "copyEmailLabel": "Copia indirizzo email",
+      "copyEmailSuccess": "Indirizzo email copiato!",
+      "copyEmailError": "Copia non riuscita.",
+      "suggestIdea": "Proponi un'idea",
+      "openSuggestions": "Apri Idee e suggerimenti",
+      "reportBug": "Segnala un errore",
+      "openBugReport": "Apri la segnalazione di un errore"
+    },
+    "form": {
+      "email": "Email",
+      "emailPlaceholder": "tua@email.com",
+      "fullName": "Nome e cognome",
+      "fullNamePlaceholder": "Il tuo nome",
+      "subject": "Oggetto",
+      "subjectPlaceholder": "Es. Una domanda su Disscount",
+      "message": "Messaggio",
+      "messagePlaceholder": "Scrivici come possiamo aiutarti",
+      "charactersLeft": "{count, plural, one {# carattere rimasto} other {# caratteri rimasti}}"
+    },
+    "modal": {
+      "title": "Scrivici",
+      "description": "Scrivici con il modulo qui sotto o contattaci direttamente.",
+      "submit": "Invia messaggio",
+      "cancel": "Annulla",
+      "reset": "Reimposta",
+      "sent": "Messaggio inviato. Grazie per averci scritto!",
+      "sentWithEmail": "Messaggio inviato. Grazie per averci scritto! Se serve, ti rispondiamo a quell'indirizzo.",
+      "sourceAvailable": "Disscount è source-available. <link>Guarda il progetto su GitHub</link>."
+    }
+  },
+  "donation": {
+    "title": "Sostieni Disscount",
+    "intro": "Disscount è gratuito e resterà così. Se ti semplifica la spesa, ogni sostegno conta molto per noi.",
+    "usage": "Tutto va nella manutenzione e nello sviluppo di Disscount.",
+    "kofi": "Sostieni su Ko-fi"
+  },
+  "forgotPassword": {
+    "link": "Password dimenticata?",
+    "sending": "Invio..."
+  },
+  "multiSelect": {
+    "optionsList": "Elenco delle opzioni",
+    "selectAll": "Seleziona tutto",
+    "clearAll": "Rimuovi tutto",
+    "selected": "Selezionati: {count}"
+  },
+  "passwordInput": {
+    "show": "Mostra password",
+    "hide": "Nascondi password"
+  },
+  "stepper": {
+    "increase": "Aumenta di {amount, number}",
+    "decrease": "Diminuisci di {amount, number}"
+  },
+  "notifications": {
+    "label": "Notifiche",
+    "labelWithCount": "Notifiche ({count})",
+    "loading": "Caricamento...",
+    "emptyWatching": "Oggi nessuno sconto sui prodotti che segui.",
+    "emptyNotWatching": "Segui dei prodotti e ti avvisiamo quando vanno in offerta nei tuoi negozi.",
+    "addProducts": "Aggiungi prodotti",
+    "totalSavings": "Risparmio totale oggi:",
+    "savingsDetail": "(≥ {amount} su {count, plural, one {# prodotto} other {# prodotti}})"
+  },
+  "install": {
+    "actionDesktop": "Installa l'app",
+    "actionMobile": "Aggiungi alla schermata Home",
+    "pitchDesktop": "Installa Disscount per aprirlo più in fretta.",
+    "pitchMobile": "Aggiungi Disscount alla schermata Home per aprirlo più in fretta.",
+    "close": "Chiudi",
+    "unsupportedTitle": "Questo browser non supporta l'installazione",
+    "unsupportedText": "Apri Disscount in un altro browser, ad esempio Google Chrome, per aggiungerlo al dispositivo.",
+    "perkTitle": "Installa come app",
+    "perkDesktop": "Niente download da uno store: installa Disscount direttamente dal browser.",
+    "perkMobile": "Niente download da uno store: aggiungi Disscount alla schermata Home direttamente dal browser.",
+    "sheetDescriptionDesktop": "Installa Disscount sul computer in pochi passaggi.",
+    "sheetDescriptionMobile": "Aggiungi Disscount alla schermata Home in pochi passaggi.",
+    "steps": {
+      "iosMenu": "Tocca <ellipsis></ellipsis> accanto alla barra degli indirizzi, poi <share></share> <b>Condividi</b>. Sugli iPhone meno recenti <b>Condividi</b> è direttamente nella barra degli strumenti.",
+      "iosAdd": "Scorri il menu verso il basso e scegli <plus></plus> <b>Aggiungi alla schermata Home</b>.",
+      "confirmAdd": "Conferma con <b>Aggiungi</b>.",
+      "macFile": "Apri il menu <b>File</b> nella barra dei menu in alto.",
+      "macDock": "Scegli <dock></dock> <b>Aggiungi al Dock</b>.",
+      "androidMenu": "Tocca <vdots></vdots> per aprire il menu del browser.",
+      "androidChoose": "Scegli <download></download> <b>Installa app</b> o <b>Aggiungi alla schermata Home</b>, a seconda del browser.",
+      "confirmInstall": "Conferma con <b>Installa</b>.",
+      "desktopIcon": "Fai clic sull'icona <monitor></monitor> a destra della barra degli indirizzi.",
+      "desktopMenu": "Se non vedi l'icona, apri il menu <vdots></vdots> e scegli <b>Trasmetti, salva e condividi</b> › <b>Installa pagina come app</b>."
+    }
+  },
+  "appUpdate": {
+    "message": "È pronta una nuova versione di Disscount.",
+    "reload": "Ricarica"
+  },
+  "validation": {
+    "fullNameMax": "Il nome può avere al massimo 255 caratteri",
+    "subjectRequired": "Scrivi l'oggetto",
+    "subjectMax": "L'oggetto può avere al massimo 255 caratteri",
+    "messageRequired": "Scrivi un messaggio",
+    "messageMax": "Il messaggio può avere al massimo 5000 caratteri"
+  },
+  "distanceSort": {
+    "locating": "Stiamo cercando la tua posizione per ordinare per distanza…",
+    "ready": "Ordinato per distanza dalla tua posizione. Non la salviamo né la inviamo.",
+    "readyFromTown": "Ordinato da {town}.",
+    "readyFromSavedPlace": "Senza posizione: ordinato da {town}.",
+    "denied": "Non abbiamo accesso alla posizione, quindi resta l'ordine predefinito. Consentilo nelle impostazioni del browser e scegli di nuovo la distanza.",
+    "unavailable": "La tua posizione non è disponibile al momento, quindi resta l'ordine predefinito. Scegli di nuovo la distanza per riprovare.",
+    "timeout": "Non riusciamo a determinare la tua posizione, quindi resta l'ordine predefinito. Controlla che la localizzazione sia attiva sul dispositivo e scegli di nuovo la distanza.",
+    "noStores": "Le posizioni dei negozi non sono disponibili al momento, quindi resta l'ordine predefinito.",
+    "nearestName": "Negozio più vicino, {distance}: {store}",
+    "pickTown": "Scegli una località",
+    "changeTown": "Cambia",
+    "changeTownLabel": "Cambia località",
+    "townSearch": "Cerca una località o un CAP",
+    "townList": "Località con negozi",
+    "townEmpty": "Nessuna località con negozi corrisponde."
+  },
+  "towns": {
+    "withCounty": "{town} ({county})",
+    "counties": {
+      "cityOfZagreb": "Città di Zagabria",
+      "zagrebCounty": "Contea di Zagabria",
+      "krapinaZagorje": "Krapina-Zagorje",
+      "sisakMoslavina": "Sisak-Moslavina",
+      "karlovac": "Karlovac",
+      "varazdin": "Varaždin",
+      "koprivnicaKrizevci": "Koprivnica-Križevci",
+      "bjelovarBilogora": "Bjelovar-Bilogora",
+      "primorjeGorskiKotar": "Litoraneo-montana",
+      "likaSenj": "Lika e Segna",
+      "viroviticaPodravina": "Virovitica-Podravina",
+      "pozegaSlavonia": "Požega-Slavonia",
+      "brodPosavina": "Brod-Posavina",
+      "zadar": "Zara",
+      "osijekBaranja": "Osijek-Baranja",
+      "sibenikKnin": "Sebenico e Knin",
+      "vukovarSrijem": "Vukovar-Srijem",
+      "splitDalmatia": "Spalato-Dalmazia",
+      "istria": "Istria",
+      "dubrovnikNeretva": "Dubrovnik-Neretva",
+      "medimurje": "Međimurje"
+    }
+  },
+  "sectionNav": {
+    "stores": "Prezzi per catena",
+    "storesShort": "Negozi",
+    "priceHistory": "Storico prezzi",
+    "priceHistoryShort": "Storico"
+  }
+}

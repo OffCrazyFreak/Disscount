@@ -13,15 +13,12 @@ function scoreCamera(label: string, index: number): number {
 
 // Labels exist only after permission is granted, so this can return null.
 export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
-  // Counted before filtering: some browsers label only the granted device, so
-  // counting labels treated a multi-camera phone as single-camera and handed the
-  // choice back to the platform, which on Android often means the front lens.
+  // Counted before filtering: some browsers label only the granted device, handing Android its front lens.
   if (devices.length < 2) return null;
 
   const labeledDevices = devices.filter((device) => device.label);
 
-  // The browser already has to use the only camera. Waiting for its label and
-  // then selecting it explicitly would just restart the same stream.
+  // The browser already must use the only camera, and selecting it explicitly would just restart the same stream.
   if (labeledDevices.length === 0) return null;
 
   const scored = labeledDevices
@@ -31,18 +28,21 @@ export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
     }))
     .sort((a, b) => b.score - a.score);
 
-  // A negative score means the best label we can see is a front or specialty
-  // lens, which happens when the browser labels only the granted device. Naming
-  // it explicitly would pin the scanner to it; null falls back to facingMode,
-  // which is the whole reason this can return null.
+  // A negative score means the best label is a front or specialty lens, so null falls back to facingMode.
   const best = scored[0];
 
   return best && best.score >= 0 ? best.deviceId : null;
 }
 
+export type CameraFacing = "front" | "back" | "unknown";
+export type CameraLens = "ultrawide" | "telephoto" | "macro" | "main";
+
 interface INamedCamera {
   deviceId: string;
-  label: string;
+  facing: CameraFacing;
+  lens: CameraLens;
+  /** 0 when the name is already unique, otherwise the 1-based position among identical names. */
+  ordinal: number;
   rawLabel: string;
 }
 
@@ -52,68 +52,78 @@ function nativeCameraIndex(label: string, fallback: number): number {
   return match ? Number(match[1]) : fallback;
 }
 
-function baseCameraName(label: string): string {
+function cameraFacing(label: string): CameraFacing {
   const name = label.toLowerCase();
 
-  const facing = /front|user|selfie|prednja/.test(name)
-    ? "Prednja kamera"
-    : /back|rear|environment|stražnja/.test(name)
-      ? "Stražnja kamera"
-      : "Kamera";
+  if (/front|user|selfie|prednja/.test(name)) return "front";
+  if (/back|rear|environment|stražnja/.test(name)) return "back";
 
-  const lens = /ultra/.test(name)
-    ? " (ultraširoka)"
-    : /tele|zoom/.test(name)
-      ? " (telefoto)"
-      : /macro|makro/.test(name)
-        ? " (makro)"
-        : "";
-
-  return facing + lens;
+  return "unknown";
 }
 
-function facingRank(label: string): number {
-  if (label.startsWith("Stražnja")) return 0;
-  if (label.startsWith("Prednja")) return 1;
+function cameraLens(label: string): CameraLens {
+  const name = label.toLowerCase();
+
+  if (/ultra/.test(name)) return "ultrawide";
+  if (/tele|zoom/.test(name)) return "telephoto";
+  if (/macro|makro/.test(name)) return "macro";
+
+  return "main";
+}
+
+function facingRank(facing: CameraFacing): number {
+  if (facing === "back") return 0;
+  if (facing === "front") return 1;
 
   return 2;
 }
 
-/**
- * Map raw OS camera labels ("camera2 0, facing back"...) to friendly Croatian
- * names: back cameras first, then front, each ordered and numbered by the
- * native camera index (camera 0 is usually the main sensor).
- */
+/** Camera 0 is usually the main sensor, so back cameras are ordered and numbered by native index. */
 export function formatCameraLabels(devices: MediaDeviceInfo[]): INamedCamera[] {
   const named = devices
     .map((device, index) => ({
       deviceId: device.deviceId,
       rawLabel: device.label,
-      label: baseCameraName(device.label),
+      facing: cameraFacing(device.label),
+      lens: cameraLens(device.label),
       order: nativeCameraIndex(device.label, index),
     }))
     .sort(
-      (a, b) => facingRank(a.label) - facingRank(b.label) || a.order - b.order,
+      (a, b) =>
+        facingRank(a.facing) - facingRank(b.facing) || a.order - b.order,
     );
+
+  const nameKey = (camera: { facing: CameraFacing; lens: CameraLens }) =>
+    `${camera.facing}:${camera.lens}`;
 
   const totals = new Map<string, number>();
   named.forEach((camera) => {
-    totals.set(camera.label, (totals.get(camera.label) ?? 0) + 1);
+    totals.set(nameKey(camera), (totals.get(nameKey(camera)) ?? 0) + 1);
   });
 
   const seen = new Map<string, number>();
 
   return named.map(({ order: _order, ...camera }) => {
-    if ((totals.get(camera.label) ?? 0) < 2) return camera;
+    if ((totals.get(nameKey(camera)) ?? 0) < 2)
+      return { ...camera, ordinal: 0 };
 
-    const ordinal = (seen.get(camera.label) ?? 0) + 1;
-    seen.set(camera.label, ordinal);
+    const ordinal = (seen.get(nameKey(camera)) ?? 0) + 1;
+    seen.set(nameKey(camera), ordinal);
 
-    return { ...camera, label: `${camera.label} ${ordinal}` };
+    return { ...camera, ordinal };
   });
 }
 
-export function describeScannerError(error: unknown): string {
+export type ScannerErrorKey =
+  | "permissionDenied"
+  | "noCamera"
+  | "inUse"
+  | "overconstrained"
+  | "insecureContext"
+  | "generic";
+
+/** Returns a `scanner.errors.*` key; the caller translates it. */
+export function describeScannerError(error: unknown): ScannerErrorKey {
   const kind =
     error && typeof error === "object" && "kind" in error
       ? String((error as { kind: unknown }).kind)
@@ -121,16 +131,16 @@ export function describeScannerError(error: unknown): string {
 
   switch (kind) {
     case "permission-denied":
-      return "Pristup kameri je odbijen. Omogući kameru u postavkama preglednika pa pokušaj ponovno.";
+      return "permissionDenied";
     case "no-camera":
-      return "Kamera nije pronađena na ovom uređaju.";
+      return "noCamera";
     case "in-use":
-      return "Kameru trenutno koristi druga aplikacija. Zatvori je pa pokušaj ponovno.";
+      return "inUse";
     case "overconstrained":
-      return "Odabrana kamera nije dostupna. Resetiraj kameru na automatski odabir.";
+      return "overconstrained";
     case "insecure-context":
-      return "Skeniranje radi samo preko sigurne (HTTPS) veze.";
+      return "insecureContext";
     default:
-      return "Greška pri pokretanju kamere. Pokušaj ponovno.";
+      return "generic";
   }
 }

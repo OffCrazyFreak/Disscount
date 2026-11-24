@@ -1,10 +1,13 @@
 "use client";
 
+import { useFormState } from "react-hook-form";
 import { Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import EmailField from "@/components/custom/auth/components/fields/email-field";
-import InboxNotice from "@/components/custom/common/inbox-notice";
+import InboxNotice from "@/components/custom/common/feedback/inbox-notice";
 import { useForgotPasswordForm } from "@/components/custom/auth/hooks/use-forgot-password-form";
 
 interface IForgotPasswordFormProps {
@@ -14,51 +17,52 @@ interface IForgotPasswordFormProps {
 export default function ForgotPasswordForm({
   onBackToLogin,
 }: IForgotPasswordFormProps) {
+  const t = useTranslations("auth");
   const { form, onSubmit, submittedEmail } = useForgotPasswordForm();
+  const formState = useFormState({ control: form.control });
 
   if (submittedEmail) {
     return (
       <InboxNotice
-        title="Provjeri svoj inbox"
-        description="Ako račun s tom adresom postoji, poslali smo poveznicu za postavljanje nove lozinke na:"
+        title={t("inbox.title")}
+        description={t("forgot.inboxDescription")}
         email={submittedEmail}
       />
     );
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-      <p className="text-sm text-muted-foreground">
-        Unesi svoju email adresu i poslat ćemo ti poveznicu za postavljanje nove
-        lozinke.
-      </p>
-
-      <EmailField
-        id="forgot-email"
-        registration={form.register("email")}
-        error={form.formState.errors.email?.message}
-      />
-
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        icon={Send}
-        iconPlacement="left"
-        loading={form.formState.isSubmitting}
-        loadingText="Slanje..."
-        loadingIconPlacement="left"
+    <Form {...form}>
+      <form
+        noValidate
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="grid gap-4"
       >
-        Pošalji poveznicu
-      </Button>
+        <p className="text-sm text-muted-foreground">{t("forgot.intro")}</p>
 
-      <button
-        type="button"
-        onClick={onBackToLogin}
-        className="cursor-pointer text-sm text-primary underline hover:text-primary/80"
-      >
-        Natrag na prijavu
-      </button>
-    </form>
+        <EmailField control={form.control} name="email" />
+
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          icon={Send}
+          iconPlacement="left"
+          loading={formState.isSubmitting}
+          loadingText={t("forgot.sending")}
+          loadingIconPlacement="left"
+        >
+          {t("forgot.submit")}
+        </Button>
+
+        <button
+          type="button"
+          onClick={onBackToLogin}
+          className="cursor-pointer text-sm text-primary underline hover:text-primary/80"
+        >
+          {t("forgot.backToLogin")}
+        </button>
+      </form>
+    </Form>
   );
 }

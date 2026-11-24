@@ -1,14 +1,15 @@
 // Makes importing this (and RESEND_API_KEY) from a client bundle a build error.
 import "server-only";
 
-import { requireEnv } from "@/lib/env";
+import { serverEnv } from "@/lib/server-env";
 import { EmailService } from "@/lib/email/email-service";
 import { ResendProvider } from "@/lib/email/resend-provider";
+import { recipientSendLog } from "@/lib/email/recipient-send-log";
 
 // The only place Resend is wired in; swapping providers is this line alone.
 const provider = new ResendProvider(
-  requireEnv("RESEND_API_KEY"),
-  requireEnv("EMAIL_FROM"),
+  serverEnv.RESEND_API_KEY,
+  serverEnv.EMAIL_FROM,
 );
 
-export const emailService = new EmailService(provider);
+export const emailService = new EmailService(provider, recipientSendLog);

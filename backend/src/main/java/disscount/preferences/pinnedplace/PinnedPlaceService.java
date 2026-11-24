@@ -1,0 +1,54 @@
+package disscount.preferences.pinnedplace;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import disscount.shared.errors.BadRequestException;
+import disscount.user.ActiveUsers;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.IntStream;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class PinnedPlaceService {
+
+    private final PinnedPlaceRepository pinnedPlaceRepository;
+    private final ActiveUsers activeUsers;
+
+    @Transactional
+    public List<PinnedPlaceDto> updatePinnedPlaces(UUID userId, BulkPinnedPlaceRequest request) {
+        activeUsers.lockActive(userId);
+
+        List<PinnedPlaceRequest> places = request.places();
+
+        long distinctIds = places.stream().map(PinnedPlaceRequest::placeApiId).distinct().count();
+
+        if (distinctIds < places.size()) {
+            throw new BadRequestException("error.pinnedPlace.duplicate");
+        }
+
+        pinnedPlaceRepository.deleteAllByUserId(userId);
+        pinnedPlaceRepository.flush();
+
+        List<PinnedPlace> saved = pinnedPlaceRepository.saveAll(IntStream.range(0, places.size())
+                .mapToObj(index -> PinnedPlace.builder()
+                        .userId(userId)
+                        .placeApiId(places.get(index).placeApiId())
+                        .placeName(places.get(index).placeName())
+                        .sortOrder(index)
+                        .build())
+                .toList());
+
+        return saved.stream().map(PinnedPlaceDto::from).toList();
+    }
+
+    public List<PinnedPlaceDto> getUserPinnedPlaces(UUID userId) {
+        return pinnedPlaceRepository.findByUserId(userId).stream()
+                .map(PinnedPlaceDto::from)
+                .toList();
+    }
+}

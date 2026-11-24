@@ -15,6 +15,83 @@
       "when": 1781967749693,
       "tag": "0001_silly_talos",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791821919587,
+      "tag": "0002_user_locale",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791918694921,
+      "tag": "0003_store_locations",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791921158768,
+      "tag": "0004_store_location_address",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793568090889,
+      "tag": "0005_user_last_login",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793598572386,
+      "tag": "0006_rate_limit",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793598573020,
+      "tag": "0007_email_send",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793695694427,
+      "tag": "0008_session_country",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793711843763,
+      "tag": "0009_jwks_alg_crv",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793724875516,
+      "tag": "0010_store_hours",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794412873535,
+      "tag": "0011_auth_and_web_schemas",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794420597151,
+      "tag": "0012_security_event",
+      "breakpoints": true
     }
   ]
 }

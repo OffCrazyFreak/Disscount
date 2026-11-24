@@ -1,9 +1,6 @@
 import { AxiosError } from "axios";
 
-/**
- * Thrown by every Cijene client so callers can map an upstream failure onto a
- * response without knowing that axios is underneath.
- */
+/** So callers can map an upstream failure onto a response without knowing that axios is underneath. */
 export class CijeneApiError extends Error {
   constructor(
     public status: number,
@@ -27,10 +24,7 @@ const STATUS_MESSAGES: Record<number, string> = {
   504: "Service temporarily unavailable",
 };
 
-/**
- * Translates an axios failure into a CijeneApiError, keeping the upstream
- * status where there is one. Status 0 means the request never landed.
- */
+/** Status 0 means the request never landed. */
 export function toCijeneApiError(error: AxiosError): CijeneApiError {
   const { response } = error;
 

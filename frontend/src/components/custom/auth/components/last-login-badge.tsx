@@ -1,4 +1,5 @@
 import { CircleCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -10,13 +11,15 @@ interface ILastLoginBadgeProps {
 }
 
 const variantStyles: Record<LastLoginVariant, string> = {
-  solid: "bg-primary text-white",
-  inverse: "bg-white text-primary",
+  solid: "bg-primary text-primary-foreground",
+  inverse: "bg-primary-foreground text-primary",
 };
 
 export default function LastLoginBadge({
   variant = "solid",
 }: ILastLoginBadgeProps) {
+  const t = useTranslations("auth");
+
   return (
     <Badge
       className={cn(
@@ -25,7 +28,7 @@ export default function LastLoginBadge({
       )}
     >
       <CircleCheck size={12} />
-      Zadnja prijava
+      {t("lastLogin")}
     </Badge>
   );
 }

@@ -2,7 +2,7 @@ import type { BarcodeFormat } from "barcode-detector";
 import { ScanPreset } from "@/typings/scanned-code";
 
 // The scanner and BarcodeDetector share format names, so one list drives both.
-export const PRODUCT_SCAN_FORMATS: BarcodeFormat[] = [
+const PRODUCT_SCAN_FORMATS: BarcodeFormat[] = [
   "ean_8",
   "ean_13",
   "upc_a",

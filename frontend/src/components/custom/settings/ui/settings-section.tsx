@@ -13,7 +13,6 @@ interface ISettingsSectionProps {
   children: ReactNode;
 }
 
-// The one section pattern shared by every settings tab.
 export default function SettingsSection({
   icon: Icon,
   label,

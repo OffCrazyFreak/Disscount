@@ -1,0 +1,131 @@
+{
+  "photo": {
+    "open": "Otvori slike: {name}",
+    "alt": "{name}, slika proizvoda",
+    "altNumbered": "{name}, slika {index}",
+    "thumbnail": "Prikaži sliku {index} od {total}",
+    "unverified": "Nepotvrđena slika",
+    "add": "Dodaj sliku",
+    "manage": "Uredi slike"
+  },
+  "viewer": {
+    "previous": "Prethodna slika",
+    "next": "Sljedeća slika",
+    "close": "Zatvori",
+    "zoomIn": "Povećaj",
+    "zoomOut": "Smanji",
+    "lightbox": "Pregled slika",
+    "carousel": "Slike proizvoda",
+    "slide": "Slika",
+    "thumbnails": "Sličice",
+    "slideOf": "Slika {index} od {total}",
+    "gallery": "Galerija slika",
+    "report": "Prijavi sliku",
+    "reported": "Hvala, pogledat ćemo tu sliku.",
+    "reportFailed": "Prijava slike nije poslana. Pokušaj ponovno.",
+    "setMain": "Postavi kao glavnu",
+    "isMain": "Glavna slika",
+    "setMainDone": "Glavna slika je promijenjena."
+  },
+  "upload": {
+    "title": "Dodaj sliku",
+    "description": "Uslikaj prednju stranu pakiranja, po mogućnosti na svijetloj podlozi i bez ljudi u kadru.",
+    "takePhoto": "Uslikaj",
+    "chooseFile": "Odaberi iz galerije",
+    "previewAlt": "Pregled odabrane slike",
+    "change": "Odaberi drugu",
+    "submit": "Pošalji sliku",
+    "submitting": "Šaljem sliku",
+    "preparing": "Pripremam sliku",
+    "public": "Slika je javna. Potvrdit ćemo je kad netko drugi doda sliku istog proizvoda ili kad je pregleda naš tim.",
+    "adminNote": "Slike koje dodaju administratori odmah postaju glavne.",
+    "done": "Hvala! Slika je dodana.",
+    "failed": "Slika nije poslana. Pokušaj ponovno.",
+    "errors": {
+      "cannotOpen": "Ta se slika ne može otvoriti.",
+      "cannotProcess": "Ta se slika ne može obraditi.",
+      "cannotSave": "Slika se ne može spremiti.",
+      "tooLarge": "Slika je prevelika čak i nakon smanjivanja. Probaj drugu."
+    }
+  },
+  "manager": {
+    "title": "Slike proizvoda",
+    "ean": "EAN {ean}",
+    "listings": "{count, plural, one {# cijena u trgovinama} few {# cijene u trgovinama} other {# cijena u trgovinama}}",
+    "chains": "{count, plural, one {# lanac} few {# lanca} other {# lanaca}}",
+    "refresh": "Dohvati s Open Food Factsa",
+    "refreshed": "Slike s Open Food Factsa su dohvaćene.",
+    "markReviewed": "Označi kao pregledano",
+    "reviewedAt": "Pregledano {date}",
+    "notReviewed": "Još nije pregledano",
+    "pinned": "Glavna slika odabrana je ručno",
+    "empty": "Nema slika. Dohvati ih s Open Food Factsa ili dodaj svoju.",
+    "setMain": "Postavi kao glavnu",
+    "main": "Glavna",
+    "crop": "Obreži",
+    "hide": "Sakrij",
+    "restore": "Vrati",
+    "approve": "Potvrdi",
+    "delete": "Obriši",
+    "deleteTitle": "Obrisati sliku zauvijek?",
+    "deleteDescription": "Datoteke se brišu s poslužitelja. Ista slika se više ne može dodati ni uvesti s Open Food Factsa. Ovo se ne može poništiti.",
+    "deleteConfirm": "Obriši sliku",
+    "deleteCancel": "Odustani",
+    "deleted": "Slika je obrisana.",
+    "reports": "{count, plural, one {# prijava} few {# prijave} other {# prijava}}",
+    "openProduct": "Otvori proizvod",
+    "actionFailed": "Promjena nije uspjela.",
+    "photoLabel": "Slika {index}: {source}, {status}",
+    "source": {
+      "OPEN_FOOD_FACTS": "Open Food Facts",
+      "USER": "Korisnik",
+      "ADMIN": "Admin"
+    },
+    "status": {
+      "CANDIDATE": "Nije kopirana",
+      "PENDING": "Nepotvrđena",
+      "VERIFIED": "Potvrđena",
+      "HIDDEN": "Skrivena"
+    }
+  },
+  "crop": {
+    "title": "Obreži sliku",
+    "description": "Povuci okvir oko proizvoda. Okretanje se primjenjuje prije obrezivanja.",
+    "rotateLeft": "Okreni ulijevo",
+    "rotateRight": "Okreni udesno",
+    "reset": "Cijela slika",
+    "save": "Spremi",
+    "saving": "Spremam",
+    "loading": "Učitavam original",
+    "loadFailed": "Original se nije mogao učitati.",
+    "saved": "Slika je obrezana.",
+    "handles": {
+      "area": "Područje obrezivanja, pomiči ga strelicama",
+      "nw": "Gornji lijevi kut",
+      "n": "Gornji rub",
+      "ne": "Gornji desni kut",
+      "e": "Desni rub",
+      "se": "Donji desni kut",
+      "s": "Donji rub",
+      "sw": "Donji lijevi kut",
+      "w": "Lijevi rub",
+      "image": "Original za obrezivanje"
+    }
+  },
+  "queue": {
+    "filterLabel": "Prikaz",
+    "filters": {
+      "todo": "Za pregled",
+      "pending": "Nepotvrđene",
+      "reported": "Prijavljene"
+    },
+    "reviewedCount": "Pregledano: {count}",
+    "total": "{count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}}",
+    "rank": "#{rank}",
+    "noPhoto": "Bez slike",
+    "empty": "Ovdje nema ničega za pregled.",
+    "reviewedNext": "Pregledano, sljedeći",
+    "listLabel": "Proizvodi za pregled",
+    "keyboardHint": "Tipke: J i K za kretanje, R za pregledano i dalje."
+  }
+}

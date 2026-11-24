@@ -1,32 +1,46 @@
-import type { UseFormRegisterReturn } from "react-hook-form";
+import { useTranslations } from "next-intl";
+import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
-interface IEmailFieldProps {
-  registration: UseFormRegisterReturn;
-  error?: string;
-  id?: string;
+interface IEmailFieldProps<T extends FieldValues> {
+  control: Control<T>;
+  name: FieldPath<T>;
 }
 
-export default function EmailField({
-  registration,
-  error,
-  id = "email",
-}: IEmailFieldProps) {
+export default function EmailField<T extends FieldValues>({
+  control,
+  name,
+}: IEmailFieldProps<T>) {
+  const t = useTranslations("auth");
+
   return (
-    <div className="grid gap-2">
-      <Label htmlFor={id}>Email</Label>
-      <Input
-        id={id}
-        type="email"
-        placeholder="korisnik@example.com"
-        autoComplete="email"
-        {...registration}
-        className={cn(error && "border-red-700")}
-      />
-      {error && <p className="text-sm text-red-700">{error}</p>}
-    </div>
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{t("email.label")}</FormLabel>
+          {/* Every auth field is required, so no star; screen readers still hear it. */}
+          <FormControl>
+            <Input
+              {...field}
+              aria-required="true"
+              type="email"
+              placeholder={t("email.placeholder")}
+              autoComplete="email"
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }

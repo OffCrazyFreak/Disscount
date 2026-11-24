@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Store } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getChainLabel } from "@/utils/labels";
+import { getChainLabel } from "@/utils/format/labels";
 
 interface IStoreChainLogoProps {
   chain: string;
@@ -15,11 +15,7 @@ interface IStoreChainLogoProps {
   sizes?: string;
 }
 
-/**
- * Renders a store chain logo from /store-chains/<chain>.png.
- * Falls back to a generic placeholder icon when the image is missing, so an
- * unmapped chain returned by the cijene API never renders a broken image.
- */
+/** Falls back to a placeholder so an unmapped chain from the cijene API never renders a broken image. */
 export default function StoreChainLogo({
   chain,
   className,

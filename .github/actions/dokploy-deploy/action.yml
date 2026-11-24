@@ -1,0 +1,45 @@
+name: Dokploy deploy
+description: Points an environment's moving tag at one commit's images, redeploys the Dokploy compose service and waits until /health reports that commit. On dev, puts the previous release back if it never does.
+
+inputs:
+  release-id:
+    description: Full commit SHA whose images go live (sha- tags on dev, prod-sha- tags on prod)
+    required: true
+  environment-tag:
+    description: Moving tag the compose file pulls (dev or prod)
+    required: true
+  registry-token:
+    description: Token that may push to the GHCR packages
+    required: true
+  dokploy-url:
+    description: Base URL of the Dokploy panel
+    required: true
+  api-key:
+    description: API key of the Dokploy user limited to this service
+    required: true
+  compose-id:
+    description: Dokploy compose service id
+    required: true
+  app-url:
+    description: Public URL of the site whose /health is checked
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.registry-token }}
+
+    - name: Deploy this commit
+      shell: bash
+      env:
+        RELEASE_ID: ${{ inputs.release-id }}
+        ENVIRONMENT_TAG: ${{ inputs.environment-tag }}
+        APP_URL: ${{ inputs.app-url }}
+        DOKPLOY_URL: ${{ inputs.dokploy-url }}
+        DOKPLOY_API_KEY: ${{ inputs.api-key }}
+        COMPOSE_ID: ${{ inputs.compose-id }}
+      run: bash "$GITHUB_ACTION_PATH/deploy.sh"

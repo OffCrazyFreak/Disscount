@@ -1,0 +1,28 @@
+import "server-only";
+
+import { delay, fetchStatus } from "@/lib/store-locations/http";
+import {
+  readCheckUrls,
+  saveLinkStatus,
+} from "@/lib/store-hours/sync/hours-repository";
+import { linksByHost, linkStatusOf } from "@/lib/store-hours/sync/link-status";
+
+// The same pace the hours sync keeps on a chain's store pages.
+const PAUSE_MS = 1000;
+
+export async function runLinkCheck(signal: AbortSignal): Promise<void> {
+  const groups = linksByHost(await readCheckUrls());
+
+  // Settled, not all: the lease is released only once every host is done.
+  const results = await Promise.allSettled(
+    groups.map(async (urls) => {
+      for (const url of urls) {
+        await saveLinkStatus(url, linkStatusOf(await fetchStatus(url, signal)));
+        await delay(PAUSE_MS, signal);
+      }
+    }),
+  );
+  const failed = results.find((result) => result.status === "rejected");
+
+  if (failed) throw failed.reason;
+}

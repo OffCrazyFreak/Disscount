@@ -1,6 +1,8 @@
 "use client";
 
 import { KeyRound } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useFormState } from "react-hook-form";
 
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/custom/form/password-input";
@@ -17,25 +19,33 @@ import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import ForgotPasswordLink from "@/components/custom/form/forgot-password-link";
 import PasswordRecovery from "@/components/custom/settings/security/components/password-recovery";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
+import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
+import FormRootError from "@/components/custom/common/feedback/form-root-error";
+import { useValidationMessage } from "@/i18n/use-validation-message";
 
 export const CREDENTIALS_FORM_ID = "credentials-form";
 
 export default function CredentialsForm() {
+  const t = useTranslations("settings");
+  const { hint } = usePasswordPolicy();
   const { form, submit, hasPassword, canEditEmail, recovery } = useSecurity();
+  const { errors } = useFormState({ control: form.control });
+  const translate = useValidationMessage();
 
   return (
     <SettingsSection
       icon={KeyRound}
-      label="Prijava i lozinka"
+      label={t("security.credentials.label")}
       hint={
         hasPassword
-          ? "Za promjenu emaila ili lozinke potvrdi svoju trenutnu lozinku."
-          : "Postavi lozinku da se možeš prijaviti i emailom, ne samo društvenim računom."
+          ? t("security.credentials.hintWithPassword")
+          : t("security.credentials.hintWithoutPassword")
       }
     >
       <Form {...form}>
         <form
           id={CREDENTIALS_FORM_ID}
+          noValidate
           onSubmit={form.handleSubmit(submit)}
           className="space-y-6"
         >
@@ -43,16 +53,16 @@ export default function CredentialsForm() {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
+              <FormItem required={canEditEmail}>
+                <FormLabel>{t("security.credentials.email")}</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} disabled={!canEditEmail} />
                 </FormControl>
                 {!canEditEmail && (
                   <FormDescription>
                     {hasPassword
-                      ? "Za promjenu emaila prvo odspoji povezane društvene račune."
-                      : "Email ćeš moći mijenjati nakon što postaviš lozinku."}
+                      ? t("security.credentials.emailLockedSocial")
+                      : t("security.credentials.emailLockedNoPassword")}
                   </FormDescription>
                 )}
                 <FormMessage />
@@ -64,22 +74,24 @@ export default function CredentialsForm() {
             control={form.control}
             name="newPassword"
             render={({ field }) => (
-              <FormItem>
+              <FormItem required={!hasPassword}>
                 <FormLabel>
-                  {hasPassword ? "Nova lozinka" : "Lozinka"}
+                  {hasPassword
+                    ? t("security.credentials.newPassword")
+                    : t("security.credentials.password")}
                 </FormLabel>
                 <FormControl>
                   <PasswordInput
                     autoComplete="new-password"
                     placeholder={
-                      hasPassword ? "Ostavi prazno ako ne mijenjaš" : undefined
+                      hasPassword
+                        ? t("security.credentials.newPasswordPlaceholder")
+                        : undefined
                     }
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  Najmanje 12 znakova, jedno veliko i malo slovo te broj.
-                </FormDescription>
+                <FormDescription>{hint}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -90,9 +102,11 @@ export default function CredentialsForm() {
               control={form.control}
               name="currentPassword"
               render={({ field }) => (
-                <FormItem>
+                <FormItem required>
                   <div className="flex items-center justify-between gap-2">
-                    <FormLabel>Trenutna lozinka</FormLabel>
+                    <FormLabel>
+                      {t("security.credentials.currentPassword")}
+                    </FormLabel>
                     {!recovery.sentTo && (
                       <ForgotPasswordLink
                         onClick={recovery.send}
@@ -104,13 +118,15 @@ export default function CredentialsForm() {
                     <PasswordInput autoComplete="current-password" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Potrebna za potvrdu promjene emaila ili lozinke.
+                    {t("security.credentials.currentPasswordDescription")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
           )}
+
+          <FormRootError message={translate(errors.root?.message)} />
         </form>
       </Form>
 

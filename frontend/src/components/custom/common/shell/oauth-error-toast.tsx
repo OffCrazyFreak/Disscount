@@ -1,0 +1,60 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+
+import { parseModalParam } from "@/lib/modal/modal-param-parser";
+
+// Better Auth appends ?error=<code>; map each one so the user learns why.
+const ERROR_MESSAGE_KEYS = {
+  email_not_found: "oauthError.emailNotFound",
+  // Linking flow: the provider's email differs from the logged-in account's email.
+  email_does_not_match: "oauthError.emailMismatch",
+  // Linking flow: that exact provider account already belongs to another Disscount user.
+  account_already_linked_to_different_user: "oauthError.alreadyLinked",
+  // Sign-in flow: a matching account exists but can't be auto-linked under current rules.
+  account_not_linked: "oauthError.notLinked",
+  please_restart_the_process: "oauthError.restart",
+} as const;
+
+function isKnownError(code: string): code is keyof typeof ERROR_MESSAGE_KEYS {
+  return Object.hasOwn(ERROR_MESSAGE_KEYS, code);
+}
+
+// App-wide since linking errors arrive with the auth modal unmounted; window.location loses a race.
+export default function OAuthErrorToast() {
+  const t = useTranslations("common");
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
+  const target = parseModalParam(searchParams);
+  // A failed verification link lands with ?error= too; its status modal shows that one.
+  const isOwnedByModal = target !== null && "linkError" in target;
+  const shown = useRef(false);
+
+  useEffect(() => {
+    if (!error || isOwnedByModal || shown.current) return;
+
+    shown.current = true;
+    toast.error(
+      isKnownError(error)
+        ? t(ERROR_MESSAGE_KEYS[error])
+        : t("oauthError.default"),
+      { duration: 6000 },
+    );
+
+    // Strip the param from the address bar so a refresh doesn't re-show the toast.
+    const params = new URLSearchParams(window.location.search);
+    params.delete("error");
+    params.delete("error_description");
+    const query = params.toString();
+    window.history.replaceState(
+      {},
+      "",
+      window.location.pathname + (query ? `?${query}` : ""),
+    );
+  }, [error, isOwnedByModal, t]);
+
+  return null;
+}

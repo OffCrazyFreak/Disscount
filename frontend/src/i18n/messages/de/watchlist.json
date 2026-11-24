@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "title": "Merkliste",
+    "description": "Behalte Produktpreise im Blick und werde bei Angeboten benachrichtigt."
+  },
+  "client": {
+    "loginTitle": "Merkliste",
+    "loginDescription": "Behalte die Produkte, die du kaufst, im Blick und erfahre sofort, wenn der Preis sinkt.",
+    "searchPlaceholder": "Merkliste durchsuchen"
+  },
+  "header": {
+    "searchResultsTitle": "Suchergebnisse für „{query}“ ({count})",
+    "title": "Merkliste",
+    "pricesUpdated": "Preise {time} aktualisiert"
+  },
+  "list": {
+    "emptyTitle": "Deine Merkliste ist leer",
+    "emptyDescription": "Suche Produkte, wähle „Preisalarm setzen“ und werde bei Angeboten benachrichtigt.",
+    "searchProducts": "Produkte suchen"
+  },
+  "suggestions": {
+    "label": "Produktvorschläge"
+  },
+  "actionButton": {
+    "watch": "Preisalarm setzen",
+    "remove": "Preisalarm entfernen"
+  },
+  "discountRow": {
+    "srSuffix": ", {infoLabel}, Händlerauswahl öffnen"
+  },
+  "discountInfo": {
+    "loadError": "Laden hat nicht geklappt",
+    "noData": "Keine Daten",
+    "unavailable": "Nicht verfügbar",
+    "setPreferences": "Händler auswählen",
+    "preferredStoresInfo": "Rabatte bei deinen Händlern",
+    "allStoresInfo": "Alle Händler mit Rabatt"
+  },
+  "item": {
+    "loading": "Wird geladen...",
+    "unavailable": "Produkt nicht verfügbar"
+  },
+  "removal": {
+    "success": "Von der Merkliste entfernt.",
+    "error": "Das Produkt konnte nicht entfernt werden. Versuche es erneut.",
+    "partial": "{count, plural, one {# Produkt wurde nicht entfernt. Versuch es noch mal.} other {# Produkte wurden nicht entfernt. Versuch es noch mal.}}"
+  },
+  "createList": {
+    "label": "Liste mit reduzierten Produkten erstellen",
+    "short": "Liste erstellen",
+    "loading": "Liste wird erstellt...",
+    "listTitle": "Reduziert am {date}",
+    "productCount": "Produkte für die neue Liste: {count}.",
+    "success": "Deine Angebotsliste ist fertig!",
+    "createError": "Die Liste konnte nicht erstellt werden. Versuch es noch mal.",
+    "addFailedRemoved": "Einige Produkte wurden nicht hinzugefügt, deshalb wurde die Liste entfernt. Versuch es noch mal.",
+    "addFailedKept": "Einige Produkte wurden nicht hinzugefügt. Die Liste ist noch da, du kannst sie fertigstellen oder löschen."
+  },
+  "validation": {
+    "productRequired": "Produkt fehlt",
+    "watchTypeRequired": "Wähle, wann wir dich benachrichtigen",
+    "thresholdPositive": "Der Mindestrabatt muss größer als 0 sein"
+  },
+  "sectionNav": {
+    "label": "Abschnitte der Merkliste",
+    "watchedShort": "Gemerkt",
+    "suggestionsShort": "Vorschläge"
+  }
+}

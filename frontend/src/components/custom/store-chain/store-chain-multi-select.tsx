@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import {
   MultiSelect,
   MultiSelectContent,
@@ -5,9 +6,9 @@ import {
   MultiSelectItem,
   MultiSelectTrigger,
   MultiSelectValue,
-} from "@/components/custom/form/multi-select";
-import { getChainLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+} from "@/components/custom/form/multi-select/multi-select";
+import { getChainLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 
 interface IStoreChainMultiSelectProps {
   chains: string[];
@@ -22,12 +23,16 @@ export default function StoreChainMultiSelect({
   selectedChains,
   onChainsChange,
   className,
-  placeholder = "Odaberi trgovinske lance...",
+  placeholder,
 }: IStoreChainMultiSelectProps) {
+  const t = useTranslations("products");
+
   return (
     <MultiSelect values={selectedChains} onValuesChange={onChainsChange}>
       <MultiSelectTrigger className={className || "w-full sm:w-sm"}>
-        <MultiSelectValue placeholder={placeholder} />
+        <MultiSelectValue
+          placeholder={placeholder ?? t("storeChainSelect.multiPlaceholder")}
+        />
       </MultiSelectTrigger>
       <MultiSelectContent>
         <MultiSelectGroup>
@@ -37,8 +42,7 @@ export default function StoreChainMultiSelect({
               const label = getChainLabel(chainCode);
 
               return (
-                // The value is a chain code, so the visible label has to be
-                // named as a keyword or it cannot be searched for.
+                // The value is a chain code, so the visible label must be a keyword or it cannot be searched for.
                 <MultiSelectItem
                   key={chainCode}
                   value={chainCode}

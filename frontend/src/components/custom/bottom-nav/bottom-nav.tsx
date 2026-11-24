@@ -1,40 +1,30 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useNotifications } from "@/context/notifications-context";
+import { useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
 import { useCameraScanner } from "@/context/scanner-context";
-import useProductNavigation from "@/hooks/use-product-navigation";
-import { productEanFromPath } from "@/utils/routes";
-import BottomNavCenterItem from "@/components/custom/bottom-nav/bottom-nav-center-item";
-import BottomNavItem from "@/components/custom/bottom-nav/bottom-nav-item";
+import useProductNavigation from "@/hooks/state/use-product-navigation";
+import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
+import { productEanFromPath } from "@/utils/links/routes";
+import BottomNavCenterItem from "@/components/custom/bottom-nav/item/bottom-nav-center-item";
+import BottomNavItem from "@/components/custom/bottom-nav/item/bottom-nav-item";
 import resolveHoldTarget from "@/components/custom/bottom-nav/resolve-hold-target";
-import useActiveListProgress from "@/components/custom/bottom-nav/use-active-list-progress";
-import useBottomNavActivation from "@/components/custom/bottom-nav/use-bottom-nav-activation";
-import useBottomNavCells from "@/components/custom/bottom-nav/use-bottom-nav-cells";
-import useBottomNavPointer from "@/components/custom/bottom-nav/use-bottom-nav-pointer";
-import useIndicatorOpacity from "@/components/custom/bottom-nav/use-indicator-opacity";
+import useActiveListProgress from "@/components/custom/bottom-nav/hooks/use-active-list-progress";
+import useBottomNavActivation from "@/components/custom/bottom-nav/hooks/use-bottom-nav-activation";
+import useBottomNavCells from "@/components/custom/bottom-nav/hooks/use-bottom-nav-cells";
+import useBottomNavPointer from "@/components/custom/bottom-nav/hooks/use-bottom-nav-pointer";
+import useIndicatorOpacity from "@/components/custom/bottom-nav/hooks/use-indicator-opacity";
 import { BOTTOM_NAV_SEARCH_INDEX } from "@/components/custom/bottom-nav/bottom-nav-items";
 
-/**
- * The scrolled header's pill treatment, so the two floating bars match.
- *
- * The inset and inner padding are explicit rem values, not spacing utilities,
- * because this project's --spacing is 0.2rem. The padding keeps the first and
- * last 57.6px cells clear of the pill's edges, while justify-between distributes
- * the remaining room between cells. The surface colour itself lives in
- * globals.css, since it is what the scroll animates.
- */
+/** Explicit rem because --spacing is 0.2rem; the colour is in globals.css as the scroll animates it. */
 const SURFACE_CLASS =
-  "flex items-stretch justify-between h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border backdrop-blur-sm";
+  "flex items-stretch justify-between h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border backdrop-blur-xs";
 
-/**
- * The mobile primary navigation. Hidden from `md` up through CSS rather than a
- * media-query hook, so the markup ships in the prerendered HTML and the page
- * never shifts on hydration.
- */
+/** Hidden by CSS, not a media-query hook, so the markup prerenders and hydration never shifts it. */
 export default function BottomNav() {
+  const t = useTranslations("shell");
   const pathname = usePathname();
-  const { notifications, hasNotifications } = useNotifications();
+  const { count: priceDropCount } = useWatchlistPriceDropCount();
   const { openScanner } = useCameraScanner();
   const navigateToProduct = useProductNavigation();
   const listProgress = useActiveListProgress();
@@ -42,6 +32,33 @@ export default function BottomNav() {
   const { activate, canReturn, isSearchOpen } = useBottomNavActivation(cells);
 
   const productPageEan = productEanFromPath(pathname);
+
+  // The chevron and the ring are drawn only, so their meaning goes into the name.
+  function accessibleNameOf(index: number): string | undefined {
+    const { entry, isActive, isLocked } = cells[index];
+    const label = t(entry.item.shortLabelKey ?? entry.item.labelKey);
+    const parts: string[] = [];
+
+    if (entry.item.badge && priceDropCount > 0) {
+      parts.push(
+        t("nav.watchlistPriceDrops", { label, count: priceDropCount }),
+      );
+    } else {
+      parts.push(label);
+    }
+
+    if (entry.item.id === "shopping-lists" && listProgress) {
+      parts.push(t("bottomNav.listProgress", { ...listProgress }));
+    }
+
+    if (isActive && !isLocked && canReturn) {
+      parts.push(t("bottomNav.returnHint"));
+    }
+
+    return parts.length > 1 || parts[0] !== label
+      ? parts.join(", ")
+      : undefined;
+  }
 
   function holdFor(index: number) {
     return resolveHoldTarget(cells[index].entry, {
@@ -58,8 +75,7 @@ export default function BottomNav() {
     routeKey: pathname,
   });
 
-  // A navigation keeps its destination preview until the pathname catches up,
-  // so the disc never returns briefly to the previous route after release.
+  // Keeps its preview until the pathname catches up, so the disc never snaps back.
   const previewedDisc =
     previewIndex !== null && !cells[previewIndex].isLocked
       ? previewIndex
@@ -73,21 +89,17 @@ export default function BottomNav() {
 
   return (
     <nav
-      aria-label="Glavna navigacija"
-      // The products sheet is non-modal, and globals.css hands the whole page back
-      // for those, so the bar needs no opt-in of its own. It stays inert under
-      // real modals, whose overlay covers it anyway.
+      aria-label={t("bottomNav.label")}
+      // Non-modal sheets get the page back from globals.css; real modals' overlays cover the inert bar.
       className="bottom-nav-compacts fixed inset-x-0 bottom-0 z-[var(--z-bottom-nav)] md:hidden"
     >
-      {/* touch-none keeps a horizontal scrub from being read as a page pan.
-          role="list" because Tailwind's list-style: none drops list semantics
-          in Safari, which otherwise announces five loose buttons. */}
+      {/* touch-none stops a scrub reading as a pan; role="list" because list-style: none drops it in Safari. */}
       <ul role="list" className={SURFACE_CLASS} {...listProps}>
         {cells.map(({ entry, isActive, isLocked }, index) =>
           entry.isSearch ? (
             <BottomNavCenterItem
               key={entry.item.id}
-              label={entry.item.shortLabel ?? entry.item.label}
+              label={t(entry.item.shortLabelKey ?? entry.item.labelKey)}
               isActive={isActive}
               isScrubbed={scrubIndex === index}
               showsDisc={discIndex === index}
@@ -105,15 +117,16 @@ export default function BottomNav() {
               showsDisc={discIndex === index}
               hasHold={holdFor(index) !== null}
               indicatorOpacity={indicatorOpacity}
-              // TODO: swap for a count of watched products whose price dropped
-              // since the last visit, cleared on visit and capped at 9+.
               badgeCount={
-                entry.item.badge && hasNotifications
-                  ? notifications.length
+                entry.item.badge && priceDropCount > 0
+                  ? priceDropCount
                   : undefined
               }
+              accessibleName={accessibleNameOf(index)}
               listProgress={
-                entry.item.id === "shopping-lists" ? listProgress : undefined
+                entry.item.id === "shopping-lists" && listProgress
+                  ? listProgress.checked / listProgress.total
+                  : undefined
               }
               canReturn={canReturn}
               onKeyboardActivate={() => activate(index)}

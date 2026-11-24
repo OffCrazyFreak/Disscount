@@ -1,0 +1,119 @@
+import {
+  isSettingsTab,
+  isWatchTypeParam,
+  type ModalTarget,
+} from "@/lib/modal/modal-registry";
+
+interface IModalParams {
+  sub: string | undefined;
+  id: string | null;
+  ean: string | null;
+  type: string | null;
+  list: string | null;
+  item: string | null;
+  error: string | null;
+}
+
+type ModalParser = (params: IModalParams) => ModalTarget | null;
+
+const PLAIN_MODAL_NAMES = [
+  "login",
+  "signup",
+  "forgot-password",
+  "reset-password",
+  "contact",
+  "donate",
+] as const;
+
+const AUTH_STATUS_MODAL_NAMES = ["email-verified", "email-changed"] as const;
+
+const SHOPPING_LIST_ID_ACTIONS = ["edit", "share", "copy"] as const;
+const DIGITAL_CARD_ID_ACTIONS = ["edit", "view"] as const;
+
+function parseShoppingList({ sub, id }: IModalParams): ModalTarget | null {
+  if (sub === "new") return { name: "shopping-list", action: "new" };
+
+  const action = SHOPPING_LIST_ID_ACTIONS.find((value) => value === sub);
+  return action && id ? { name: "shopping-list", action, id } : null;
+}
+
+function parseDigitalCard({ sub, id }: IModalParams): ModalTarget | null {
+  if (sub === "new") return { name: "digital-card", action: "new" };
+
+  const action = DIGITAL_CARD_ID_ACTIONS.find((value) => value === sub);
+  return action && id ? { name: "digital-card", action, id } : null;
+}
+
+function parseWatchlist({ ean, type }: IModalParams): ModalTarget | null {
+  if (!ean) return null;
+
+  const watchType = isWatchTypeParam(type) ? type : undefined;
+  return { name: "watchlist", ean, watchType };
+}
+
+// A Map, not an object literal, so names like "constructor" never hit the prototype.
+const PARSERS = new Map<string, ModalParser>([
+  ...PLAIN_MODAL_NAMES.map((name): [string, ModalParser] => [
+    name,
+    () => ({ name }),
+  ]),
+  ...AUTH_STATUS_MODAL_NAMES.map((name): [string, ModalParser] => [
+    name,
+    ({ error }) => ({ name, ...(error && { linkError: error }) }),
+  ]),
+  [
+    "onboarding",
+    ({ sub }) => ({
+      name: "onboarding",
+      mode: sub === "replay" ? "replay" : "required",
+    }),
+  ],
+  [
+    "settings",
+    ({ sub }) => ({
+      name: "settings",
+      tab: sub && isSettingsTab(sub) ? sub : "profil",
+    }),
+  ],
+  ["shopping-list", parseShoppingList],
+  ["digital-card", parseDigitalCard],
+  [
+    "shopping-list-actions",
+    ({ id }) => (id ? { name: "shopping-list-actions", id } : null),
+  ],
+  [
+    "add-to-list",
+    ({ ean, list }) =>
+      ean ? { name: "add-to-list", ean, ...(list && { listId: list }) } : null,
+  ],
+  [
+    "add-plain-item",
+    ({ item }) => ({ name: "add-plain-item", ...(item && { itemName: item }) }),
+  ],
+  [
+    "product-actions",
+    ({ ean }) => (ean ? { name: "product-actions", ean } : null),
+  ],
+  ["watchlist", parseWatchlist],
+]);
+
+export function parseModalParam(
+  searchParams: URLSearchParams,
+): ModalTarget | null {
+  const modal = searchParams.get("modal");
+  if (!modal) return null;
+
+  const [name, sub] = modal.split("/");
+  const parser = PARSERS.get(name);
+  if (!parser) return null;
+
+  return parser({
+    sub,
+    id: searchParams.get("id"),
+    ean: searchParams.get("ean"),
+    type: searchParams.get("type"),
+    list: searchParams.get("list"),
+    item: searchParams.get("item"),
+    error: searchParams.get("error"),
+  });
+}

@@ -3,10 +3,15 @@ node_modules
 .next
 out
 
-# Secrets / local env — supplied at runtime, never baked into the image
+# Secrets / local env, supplied at runtime and never baked into the image
 .env.local
 .env*.local
 .env.sentry-build-plugin
+
+# Images are published publicly, so any env file stays out, examples aside
+.env
+.env.*
+!.env*.example
 
 # VCS / tooling / OS noise
 .git

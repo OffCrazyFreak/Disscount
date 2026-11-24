@@ -10,6 +10,7 @@ import path from "node:path";
 import { GREEN, GREEN_RGB } from "./lib/brand.mjs";
 import { renderCart, ROOT } from "./lib/cart-source.mjs";
 import {
+  CART_END,
   easeOut,
   seg,
   cartFrameSvg,
@@ -204,7 +205,7 @@ for (const { n, rgb, hex, gifMatte } of VARIANTS) {
       (T, rw) => cartFrameSvg(body, eyes, T, rw, hex),
       480,
       512,
-      1.6,
+      CART_END,
     ],
     [`wordmark-${n}`]: [
       (T, rw) =>

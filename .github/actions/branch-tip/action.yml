@@ -1,0 +1,37 @@
+name: Branch tip check
+description: Tells whether a commit is still the tip of its branch, so an older run never deploys over a newer one.
+
+inputs:
+  release-id:
+    description: Full commit SHA of this run
+    required: true
+  branch:
+    description: Branch the commit deploys from
+    required: true
+  token:
+    description: Token that may read the repository
+    required: true
+
+outputs:
+  is-tip:
+    description: "'true' when release-id is the current tip of the branch"
+    value: ${{ steps.tip.outputs.is-tip }}
+
+runs:
+  using: composite
+  steps:
+    - id: tip
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        REPOSITORY: ${{ github.repository }}
+        RELEASE_ID: ${{ inputs.release-id }}
+        BRANCH: ${{ inputs.branch }}
+      run: |
+        tip=$(gh api "repos/$REPOSITORY/branches/$BRANCH" --jq .commit.sha)
+        if [ "$tip" = "$RELEASE_ID" ]; then
+          echo "is-tip=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "::notice::$BRANCH has moved on to $tip, so this run skips the deploy."
+          echo "is-tip=false" >> "$GITHUB_OUTPUT"
+        fi

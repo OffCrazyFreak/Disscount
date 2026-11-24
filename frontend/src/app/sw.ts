@@ -12,6 +12,13 @@ import {
   Serwist,
   StaleWhileRevalidate,
 } from "serwist";
+import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
+import {
+  DEPLOYMENT_PARAM_PATTERN,
+  ignoreDeploymentParam,
+} from "@/lib/pwa/deployment-param";
+import { OFFLINE_PAGE_PATH, WALLET_PAGE_PATH } from "@/lib/pwa/precached-pages";
+import { skipNoStore } from "@/lib/pwa/skip-no-store";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -20,6 +27,22 @@ declare global {
 }
 
 declare const self: ServiceWorkerGlobalScope;
+
+const LOCALE_PREFIXES: string[] = LOCALES.filter(
+  (locale) => locale !== DEFAULT_LOCALE,
+);
+const SHOPPING_LIST_PATH = new RegExp(
+  `^(/(${LOCALE_PREFIXES.join("|")}))?/shopping-lists/`,
+);
+
+const WALLET_PATH = new RegExp(
+  `^(/(${LOCALE_PREFIXES.join("|")}))?${WALLET_PAGE_PATH}/?$`,
+);
+
+function localePrefixOf(pathname: string): string {
+  const segment = pathname.split("/")[1];
+  return LOCALE_PREFIXES.includes(segment) ? `/${segment}` : "";
+}
 
 const runtimeCaching: RuntimeCaching[] = [
   // Public price/product data: serve fast from cache, refresh in the background.
@@ -32,6 +55,7 @@ const runtimeCaching: RuntimeCaching[] = [
       cacheName: "cijene-api",
       plugins: [
         new CacheableResponsePlugin({ statuses: [0, 200] }),
+        skipNoStore,
         new ExpirationPlugin({
           maxEntries: 200,
           maxAgeSeconds: 7 * 24 * 60 * 60,
@@ -45,18 +69,10 @@ const runtimeCaching: RuntimeCaching[] = [
       sameOrigin && url.pathname.startsWith("/api/"),
     handler: new NetworkOnly(),
   },
-  // The cached set of list URLs reveals which lists this device opened, including
-  // someone else's reached by link, so it is not public data. The documents themselves
-  // carry no list content: the page renders a client component from the id alone. NetworkOnly kept it off disk
-  // but sent every offline reload to the /offline fallback, which made the offline write
-  // queue unreachable in exactly the shop-with-no-signal case it exists for. NetworkFirst
-  // with a short life plus purgeOfflineCache deleting this bucket on a change of identity
-  // is the trade. Its own bucket, not defaultCache's: two ExpirationPlugins over one
-  // cache each trim it to their own maxEntries and then disagree about what is still
-  // there. Must stay above defaultCache, which is matched in order.
+  // Above defaultCache (first match wins); own bucket for expiry; NetworkFirst, as NetworkOnly cuts off the queue.
   {
     matcher: ({ url, sameOrigin }) =>
-      sameOrigin && url.pathname.startsWith("/shopping-lists/"),
+      sameOrigin && SHOPPING_LIST_PATH.test(url.pathname),
     handler: new NetworkFirst({
       cacheName: "shopping-list-pages",
       networkTimeoutSeconds: 5,
@@ -66,23 +82,60 @@ const runtimeCaching: RuntimeCaching[] = [
       ],
     }),
   },
-  ...defaultCache,
+  // ?q= and modal variants stay out of the page bucket, where an old copy points at deleted chunks.
+  {
+    matcher: ({ url, request, sameOrigin }) =>
+      sameOrigin &&
+      request.destination === "document" &&
+      WALLET_PATH.test(url.pathname),
+    // Lie-fi at the till: give up on the network quickly and open the cards.
+    handler: new NetworkOnly({ networkTimeoutSeconds: 3 }),
+  },
+  ...ignoreDeploymentParam(defaultCache),
 ];
+
+const PAGE_PREFIXES = ["", ...LOCALE_PREFIXES.map((locale) => `/${locale}`)];
+
+function isDocumentIn(request: Request, prefix: string): boolean {
+  return (
+    request.destination === "document" &&
+    localePrefixOf(new URL(request.url).pathname) === prefix
+  );
+}
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
+  precacheOptions: {
+    // The precache keys carry no ?dpl=; the first two are Serwist's defaults.
+    ignoreURLParametersMatching: [
+      /^utm_/,
+      /^fbclid$/,
+      DEPLOYMENT_PARAM_PATTERN,
+    ],
+  },
+  // Off so a deploy waits for the reload the app offers, and the old worker keeps serving the chunks open tabs ask for.
+  skipWaiting: false,
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching,
   fallbacks: {
+    // First match wins: wallet documents get this build's wallet, others the offline page.
     entries: [
-      {
-        url: "/offline",
-        matcher({ request }) {
-          return request.destination === "document";
+      ...PAGE_PREFIXES.map((prefix) => ({
+        url: `${prefix}${WALLET_PAGE_PATH}`,
+        matcher({ request }: { request: Request }) {
+          return (
+            isDocumentIn(request, prefix) &&
+            WALLET_PATH.test(new URL(request.url).pathname)
+          );
         },
-      },
+      })),
+      ...PAGE_PREFIXES.map((prefix) => ({
+        url: `${prefix}${OFFLINE_PAGE_PATH}`,
+        matcher({ request }: { request: Request }) {
+          return isDocumentIn(request, prefix);
+        },
+      })),
     ],
   },
 });

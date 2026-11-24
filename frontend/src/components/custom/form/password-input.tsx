@@ -5,11 +5,13 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState, type ComponentProps } from "react";
+import { useTranslations } from "next-intl";
 
 export function PasswordInput({
   className,
   ...props
 }: Omit<ComponentProps<typeof Input>, "type">) {
+  const t = useTranslations("common");
   const [showPassword, setShowPassword] = useState(false);
   const Icon = showPassword ? EyeOffIcon : EyeIcon;
 
@@ -29,7 +31,7 @@ export function PasswordInput({
       >
         <Icon aria-hidden="true" className="size-5" />
         <span className="sr-only">
-          {showPassword ? "Sakrij lozinku" : "Prikaži lozinku"}
+          {showPassword ? t("passwordInput.hide") : t("passwordInput.show")}
         </span>
       </Button>
     </div>

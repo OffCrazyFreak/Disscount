@@ -8,7 +8,14 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Eye, ListChecks, ScanBarcode } from "lucide-react";
+import {
+  CreditCard,
+  Eye,
+  ListChecks,
+  Map as MapIcon,
+  PiggyBank,
+  ScanBarcode,
+} from "lucide-react";
 import { GREEN } from "./lib/brand.mjs";
 import { ROOT } from "./lib/cart-source.mjs";
 import { SRGB } from "./lib/srgb.mjs";
@@ -25,11 +32,14 @@ const GLYPH = Math.round(SIZE * 0.66);
 // Same corner ratio as brand/icons/icon.svg (rx 96 on 512).
 const RADIUS = Math.round(SIZE * (96 / 512));
 
-// Keyed by navigation item id, since manifest.ts derives each src from it.
+// Keyed by navigation item id, since constants/pwa-shortcuts.ts derives each src from it.
 const SHORTCUTS = {
   scan: ScanBarcode,
   "shopping-lists": ListChecks,
   watchlist: Eye,
+  "digital-cards": CreditCard,
+  map: MapIcon,
+  spending: PiggyBank,
 };
 
 const ROUNDED = Buffer.from(

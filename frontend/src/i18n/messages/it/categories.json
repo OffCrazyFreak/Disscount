@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "indexTitle": "Categorie di prodotti",
+    "indexDescription": "Sfoglia i prodotti per categoria e confronta i loro prezzi nelle catene di supermercati croate.",
+    "categoryTitle": "{name}: confronta i prezzi",
+    "categoryPageTitle": "{name}: confronta i prezzi, pagina {page}",
+    "categoryDescription": "Confronta i prezzi di {count, plural, one {# prodotto} other {# prodotti}} della categoria {name} nelle catene di supermercati croate."
+  },
+  "breadcrumbs": {
+    "label": "Percorso",
+    "home": "Home",
+    "categories": "Categorie"
+  },
+  "index": {
+    "heading": "Categorie di prodotti",
+    "productCount": "{count, plural, one {# prodotto} other {# prodotti}}"
+  },
+  "intro": {
+    "count": "Abbiamo trovato {count, plural, one {# prodotto} other {# prodotti}} in questa categoria.",
+    "prices": "Puoi comprare i prodotti di questa pagina in {chains, plural, one {# catena} other {# catene}}, a prezzi medi da {low} a {high}.",
+    "cheapest": "{chain} ha il prezzo più basso per {wins} su {priced, plural, one {# prodotto} other {# prodotti}}."
+  },
+  "empty": "In questa categoria non ci sono ancora prodotti.",
+  "pagination": {
+    "label": "Pagine",
+    "previous": "Precedente",
+    "next": "Successiva",
+    "pageLabel": "Pagina {page}"
+  },
+  "names": {
+    "hrana-za-ljubimce": "Cibo per animali",
+    "pelene": "Pannolini",
+    "toaletni-papir": "Carta igienica",
+    "pasta-za-zube": "Dentifricio",
+    "sampon": "Shampoo",
+    "deterdzent-za-sude": "Detersivo per piatti",
+    "deterdzent-za-rublje": "Detersivo per bucato",
+    "sladoled": "Gelato",
+    "smrznuto": "Surgelati",
+    "jogurt": "Yogurt",
+    "mlijeko": "Latte",
+    "maslac": "Burro",
+    "sir": "Formaggio",
+    "jaja": "Uova",
+    "kruh": "Pane",
+    "brasno": "Farina",
+    "tjestenina": "Pasta",
+    "riza": "Riso",
+    "ulje": "Olio",
+    "secer": "Zucchero",
+    "kava": "Caffè",
+    "caj": "Tè",
+    "voda": "Acqua",
+    "sokovi": "Succhi",
+    "pivo": "Birra",
+    "vino": "Vino",
+    "cokolada": "Cioccolato",
+    "keksi": "Biscotti",
+    "grickalice": "Snack",
+    "pahuljice": "Cereali",
+    "kobasice": "Salsicce",
+    "meso": "Carne",
+    "konzerve": "Conserve"
+  },
+  "departments": {
+    "hrana": "Alimentari",
+    "pice": "Bevande",
+    "kozmetika": "Cosmetici",
+    "toaletne-potrepstine": "Igiene personale",
+    "sredstva-za-ciscenje": "Prodotti per la pulizia",
+    "kucanstvo": "Casa"
+  }
+}

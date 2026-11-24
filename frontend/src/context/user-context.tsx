@@ -4,43 +4,50 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState,
   useCallback,
   useRef,
+  useState,
+  useSyncExternalStore,
   ReactNode,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import * as Sentry from "@sentry/nextjs";
 
 import { authClient, useSession } from "@/lib/auth/client";
-import { clearAuthToken, resetAuthToken } from "@/lib/api/api-base";
-import { purgeOfflineCache } from "@/lib/offline/purge";
 import {
+  ANONYMOUS_IDENTITY,
   getCacheIdentity,
-  setCacheIdentity,
-  toCacheIdentity,
-} from "@/lib/offline/cache-identity";
-import { userService, preferencesService } from "@/lib/api";
+  persistedCacheIdentity,
+  subscribeToCacheIdentity,
+} from "@/lib/offline/cache/cache-identity";
+import { sessionIdentity } from "@/lib/auth/account/pending-sign-out";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
-import { isProtectedRoute } from "@/constants/protected-routes";
+import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
+import { userProfileQueryOptions } from "@/lib/api/users/profile-query";
+import { useProfileUpdaters } from "@/lib/api/users/use-profile-updaters";
+import { deriveAccountState } from "@/context/user-session/derive-account-state";
+import { syncCacheIdentity } from "@/context/user-session/sync-cache-identity";
+import { useLogout } from "@/context/user-session/use-logout";
 
 interface IUserContext {
   user: UserDto | null;
   isLoading: boolean;
-  /** True only until auth first resolves; stays false through later refreshes */
+  /** Stays false through refreshes of the same account. */
   isInitializing: boolean;
   isAuthenticated: boolean;
+  /** Offline, with the cache still belonging to an account, screens may show that saved data until the check passes. */
+  hasUnverifiedAccount: boolean;
+  /** Signed in, or an unverified account: the account's saved data may be shown. */
+  canShowAccountData: boolean;
+  /** For showing the account and its preferences only, never for acting on it. */
+  accountUser: UserDto | null;
   refreshUser: () => Promise<UserDto | undefined>;
-  setUser: (user: UserDto | null) => void;
-  /**
-   * Folds a profile response into the current user instead of replacing it.
-   * The backend's convertToUserDto omits pinnedStores and pinnedPlaces, so a
-   * wholesale setUser after any profile PATCH drops them until a hard reload.
-   */
+  /** Folds because convertToUserDto omits pinnedStores and pinnedPlaces, which a plain replace would drop. */
   mergeUser: (patch: Partial<UserDto>) => void;
   logout: () => Promise<void>;
-  updatePinnedStores: (stores: PinnedStoreDto[]) => void;
-  updatePinnedPlaces: (places: PinnedPlaceDto[]) => void;
+  /** savedFor: the account the save was sent as, so a late answer for another account is dropped. */
+  updatePinnedStores: (stores: PinnedStoreDto[], savedFor?: string) => void;
+  updatePinnedPlaces: (places: PinnedPlaceDto[], savedFor?: string) => void;
   handleUserLogin: () => Promise<void>;
 }
 
@@ -51,153 +58,109 @@ interface IUserProviderProps {
 }
 
 export function UserProvider({ children }: IUserProviderProps) {
-  const [user, setUser] = useState<UserDto | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasResolvedAuth, setHasResolvedAuth] = useState(false);
-  // Seeded from the persisted value so a reload as the same account is not read as a
-  // change of identity, which would purge the cache it just restored.
-  const cacheIdentityRef = useRef<string | null>(
-    getCacheIdentity() === "anon" ? null : getCacheIdentity(),
-  );
+  // Seeded so a reload as the same account is no identity change, which would purge the restored cache.
+  const cacheIdentityRef = useRef<string | null>(persistedCacheIdentity());
+  // The account the last resolved session names; undefined until the first one resolves.
+  const [sessionAccount, setSessionAccount] = useState<string | null>();
 
   const queryClient = useQueryClient();
-  const router = useRouter();
-  const pathname = usePathname();
   const {
     data: session,
     isPending: sessionPending,
     error: sessionError,
   } = useSession();
 
-  const refreshUser = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const userData = await userService.getCurrentUser();
+  const cacheIdentity = useSyncExternalStore(
+    subscribeToCacheIdentity,
+    getCacheIdentity,
+    () => ANONYMOUS_IDENTITY,
+  );
+  // Until the pin moves, a profile request would act as the previous account and be refused.
+  const accountId =
+    sessionAccount && sessionAccount === cacheIdentity ? sessionAccount : null;
+  const profileQuery = useQuery(userProfileQueryOptions(accountId));
+  const { refetch: refetchProfile } = profileQuery;
 
-      if (userData && (!userData.pinnedStores || !userData.pinnedPlaces)) {
-        try {
-          const [stores, places] = await Promise.all([
-            preferencesService.getPinnedStores(),
-            preferencesService.getPinnedPlaces(),
-          ]);
-          userData.pinnedStores = stores;
-          userData.pinnedPlaces = places;
-        } catch (prefError) {
-          console.error("Failed to fetch preferences:", prefError);
-        }
-      }
-
-      setUser(userData);
-      return userData;
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-      setHasResolvedAuth(true);
-    }
-  }, []);
+  const reloadProfile = useCallback(async () => {
+    // A running load with no data yet would be reused, and it acts as the previous account.
+    await queryClient.cancelQueries({ queryKey: USER_QUERY_KEYS.me });
+    const result = await refetchProfile();
+    return result.isSuccess ? result.data : undefined;
+  }, [queryClient, refetchProfile]);
 
   useEffect(() => {
     if (sessionPending) return;
 
-    const identity = session?.user?.id ?? null;
+    const identity = sessionIdentity(session, sessionError);
+    const previousIdentity = cacheIdentityRef.current;
 
-    // Purge on a change of identity, not on every anonymous load. This effect runs on
-    // mount, so purging whenever there is no session wiped the cache and the queued
-    // write replay on every single page load for a visitor who is not logged in, which
-    // silently dropped anything they had ticked off while offline.
-    // A failed session lookup is not a logout. /api/auth/get-session is NetworkOnly in
-    // the service worker, so offline it rejects and useSession settles to data: null with
-    // an error set. Purging on that would wipe the signed-in user's cache and every
-    // queued write on the first offline reload, which is the failure this branch exists
-    // to prevent.
-    if (!sessionError && identity !== cacheIdentityRef.current) {
-      // Pass the departing identity, not the arriving one. The purge awaits an IndexedDB
-      // delete, and setCacheIdentity below runs first, so a key resolved inside the purge
-      // would name the account that just arrived.
-      void purgeOfflineCache(
-        queryClient,
-        toCacheIdentity(cacheIdentityRef.current),
-      );
-      setCacheIdentity(identity);
-      cacheIdentityRef.current = identity;
+    syncCacheIdentity(queryClient, cacheIdentityRef, identity, sessionError);
+    // A failed lookup leaves the account unknown, as it does for the cache purge.
+    if (!sessionError || identity) {
+      // The account id only: email and name stay out of Sentry.
+      Sentry.setUser(identity ? { id: identity } : null);
     }
 
-    // The directive covers this whole effect, not just the line under it: the else
-    // branch clears user state synchronously too. Both sides react to an auth result
-    // that only exists after the session resolves, so neither is derivable.
-    if (session?.user) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      refreshUser();
-    } else {
-      clearAuthToken();
-      setUser(null);
-      setIsLoading(false);
-      setHasResolvedAuth(true);
+    // sessionIdentity can end a pending sign-out, so the resolved account is a result of this effect, not of render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSessionAccount(identity);
+    // The key stays the same across accounts, so a new account has to ask.
+    if (identity && cacheIdentityRef.current !== previousIdentity) {
+      void reloadProfile();
     }
-    // Keyed on the user id, not the user object the lint asks for: better-auth hands
-    // back a new session object on every poll, so depending on it would refetch the
-    // profile on a cadence rather than on a real sign-in or sign-out. The purge itself
-    // is guarded by the identity check above, so it would not re-fire either way.
+    // Keyed on the id because better-auth returns a new session object on every poll.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     session?.user?.id,
     sessionPending,
     sessionError,
-    refreshUser,
+    reloadProfile,
     queryClient,
   ]);
 
-  const handleLogout = useCallback(async () => {
-    try {
-      await authClient.signOut();
-    } finally {
-      clearAuthToken();
-      setUser(null);
-      // Awaited here, and the identity has not moved yet, so the current one is the
-      // account being signed out.
-      await purgeOfflineCache(queryClient, getCacheIdentity());
-      // Staying on a protected route signed out would just show a login gate.
-      if (isProtectedRoute(pathname)) router.push("/");
-    }
-  }, [queryClient, router, pathname]);
+  const forgetAccount = useCallback(() => setSessionAccount(null), []);
+  const handleLogout = useLogout(cacheIdentityRef, forgetAccount);
 
-  // Called by login/signup forms after signIn/signUp succeeds to eagerly load the profile
+  const refreshUser = useCallback(async () => {
+    const result = await refetchProfile();
+    return result.isSuccess ? result.data : undefined;
+  }, [refetchProfile]);
+
   const handleUserLogin = useCallback(async () => {
-    resetAuthToken();
-    await refreshUser();
-  }, [refreshUser]);
+    // The proxy refuses a pin differing from the cookie, and useSession may lag, so the pin moves first.
+    const { data, error } = await authClient.getSession();
+    syncCacheIdentity(
+      queryClient,
+      cacheIdentityRef,
+      data?.user?.id ?? null,
+      error,
+    );
+    // The profile shows at once, as it did before the session effect catches up.
+    if (!error) setSessionAccount(data?.user?.id ?? null);
+    await reloadProfile();
+  }, [queryClient, reloadProfile]);
 
-  const updatePinnedStores = useCallback((stores: PinnedStoreDto[]) => {
-    setUser((prev) => (prev ? { ...prev, pinnedStores: stores } : null));
-  }, []);
+  const { updatePinnedStores, updatePinnedPlaces, mergeUser } =
+    useProfileUpdaters();
 
-  const updatePinnedPlaces = useCallback((places: PinnedPlaceDto[]) => {
-    setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
-  }, []);
-
-  const mergeUser = useCallback((patch: Partial<UserDto>) => {
-    setUser((prev) => (prev ? { ...prev, ...patch } : null));
-  }, []);
-
-  // Prefer the session's name and email at render, keeping the app profile's other fields.
-  const mergedUser: UserDto | null = user
-    ? {
-        ...user,
-        name: session?.user?.name ?? user.name ?? null,
-        email: session?.user?.email ?? user.email ?? null,
-        image: user.image ?? null,
-      }
-    : null;
+  const account = deriveAccountState({
+    session,
+    sessionPending,
+    sessionError,
+    sessionAccount,
+    cacheIdentity,
+    accountId,
+    profile: profileQuery.data,
+    // Stays failed through a refetch, until one succeeds.
+    hasProfileFailed: profileQuery.isError,
+    profileFetchStatus: profileQuery.fetchStatus,
+  });
 
   const value: IUserContext = {
-    user: mergedUser,
-    isLoading: isLoading || sessionPending,
-    isInitializing: !hasResolvedAuth,
-    isAuthenticated: !!mergedUser,
+    ...account,
+    // Background refetches of the same account leave it false, so screens do not flash a loading state on focus.
+    isLoading: account.isInitializing,
     refreshUser,
-    setUser,
     mergeUser,
     logout: handleLogout,
     updatePinnedStores,

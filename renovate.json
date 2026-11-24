@@ -1,0 +1,98 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    "docker:pinDigests"
+  ],
+  "baseBranchPatterns": ["dev"],
+  "timezone": "Europe/Zagreb",
+  "schedule": ["* * 1 * *"],
+  "addLabels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Bump package.json ranges like Dependabot did, not only the lockfile",
+      "matchManagers": ["npm"],
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "frontend minor and patch"
+    },
+    {
+      "matchManagers": ["maven"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "backend minor and patch"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "github actions minor and patch"
+    },
+    {
+      "description": "Weekly, because Renovate's out-of-schedule vulnerability PRs cover no Docker images",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "docker images minor and patch",
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "description": "The BuildKit image pinned in the CI workflow, found by the custom manager below",
+      "matchPackageNames": ["moby/buildkit"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "docker images minor and patch",
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "description": "Majors wait for approval on the Dependency Dashboard; a Postgres major also needs a dump and restore of the pgdata volume",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "One pnpm version across packageManager, CI and the frontend Dockerfile",
+      "matchDepNames": ["pnpm"],
+      "groupName": "pnpm"
+    },
+    {
+      "description": "springdoc's major tracks the Spring Boot major: 2.x for Boot 3, 3.x for Boot 4. Raise this cap in the PR that moves Boot to the next major",
+      "matchPackageNames": [
+        "org.springdoc:springdoc-openapi-starter-webmvc-ui"
+      ],
+      "allowedVersions": "<4.0.0"
+    },
+    {
+      "description": "A Java major also needs the maven build image tag and pom java.version, which Renovate cannot bump",
+      "matchPackageNames": ["eclipse-temurin", "java-jdk"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "java major"
+    },
+    {
+      "description": "Longer than pnpm 11's one day release-age gate, so pnpm never refuses a proposed version and bad releases have time to be pulled",
+      "matchDatasources": ["npm"],
+      "minimumReleaseAge": "3 days"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "pnpm installed globally in the frontend image",
+      "managerFilePatterns": ["/(^|/)Dockerfile$/"],
+      "matchStrings": [
+        "npm install -g pnpm@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "pnpm",
+      "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "BuildKit image that setup-buildx-action starts in CI",
+      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": [
+        "(?<depName>moby/buildkit):(?<currentValue>v\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]{64}))?"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ]
+}

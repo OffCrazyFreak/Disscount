@@ -1,0 +1,15 @@
+{
+  "auth": {
+    "changeEmailLinkedAccounts": "Um deine E-Mail-Adresse zu ändern, trenne zuerst die verknüpften Konten (Google, Facebook)."
+  },
+  "proxy": {
+    "sessionChanged": "Ein anderes Konto ist angemeldet. Wir aktualisieren deine Daten.",
+    "notFound": "Das finden wir nicht",
+    "refreshPage": "Etwas ist schiefgelaufen. Lade die Seite neu und versuche es erneut",
+    "unavailable": "Dienst nicht verfügbar",
+    "badRequest": "Ungültige Anfrage",
+    "tooManyRequests": "Zu viele Versuche, warte kurz",
+    "tooLarge": "Die Anfrage ist zu groß",
+    "signInRequired": "Melde dich an und versuche es erneut"
+  }
+}

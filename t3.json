@@ -1,0 +1,13 @@
+{
+  "$schema": "https://t3.codes/schema/t3.json",
+  "iconPath": "frontend/src/app/favicon.ico",
+  "scripts": [
+    {
+      "name": "Install frontend dependencies",
+      "command": "cd frontend && pnpm install --frozen-lockfile",
+      "icon": "configure",
+      "runOnWorktreeCreate": true,
+      "async": false
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "title": "Spese",
+    "description": "Scopri quanto spendi per negozio e categoria."
+  },
+  "title": "Spese",
+  "loginRequired": {
+    "description": "Accedi e tieni d'occhio la spesa per negozio e categoria e i risparmi mese per mese."
+  },
+  "comingSoon": {
+    "description": "Vedrai quanto spendi per negozio e categoria, su quali prodotti risparmi di più e come cambiano le tue spese nei mesi."
+  }
+}

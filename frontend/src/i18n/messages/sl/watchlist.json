@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "title": "Spremljani izdelki",
+    "description": "Spremljaj cene izdelkov in prejemaj obvestila o popustih."
+  },
+  "client": {
+    "loginTitle": "Spremljani izdelki",
+    "loginDescription": "Spremljaj izdelke, ki jih kupuješ, in prejmi obvestilo, takoj ko jim cena pade.",
+    "searchPlaceholder": "Išči med spremljanimi izdelki"
+  },
+  "header": {
+    "searchResultsTitle": "Rezultati iskanja za »{query}« ({count})",
+    "title": "Spremljani izdelki",
+    "pricesUpdated": "Cene posodobljene {time}"
+  },
+  "list": {
+    "emptyTitle": "Ni spremljanih izdelkov",
+    "emptyDescription": "Poišči izdelke, izberi »Spremljaj izdelek« in prejemaj obvestila o popustih.",
+    "searchProducts": "Išči izdelke"
+  },
+  "suggestions": {
+    "label": "Predlogi izdelkov"
+  },
+  "actionButton": {
+    "watch": "Spremljaj izdelek",
+    "remove": "Odstrani izdelek"
+  },
+  "discountRow": {
+    "srSuffix": ", {infoLabel}, odpri nastavitve trgovin"
+  },
+  "discountInfo": {
+    "loadError": "Ni naloženo",
+    "noData": "Ni podatkov",
+    "unavailable": "Ni na voljo",
+    "setPreferences": "Nastavi trgovine",
+    "preferredStoresInfo": "Popusti v tvojih trgovinah",
+    "allStoresInfo": "Vse trgovine s popustom"
+  },
+  "item": {
+    "loading": "Nalaganje...",
+    "unavailable": "Izdelek ni na voljo"
+  },
+  "removal": {
+    "success": "Tega izdelka ne spremljaš več.",
+    "error": "Odstranitev ni uspela. Poskusi znova.",
+    "partial": "Odstranitev ni uspela pri {count, plural, one {# izdelku} two {# izdelkih} few {# izdelkih} other {# izdelkih}}. Poskusi znova."
+  },
+  "createList": {
+    "label": "Ustvari seznam izdelkov na popustu",
+    "short": "Ustvari seznam",
+    "loading": "Ustvarjanje seznama...",
+    "listTitle": "Popusti {date}",
+    "productCount": "Izdelkov za nov seznam: {count}.",
+    "success": "Seznam s popusti je pripravljen!",
+    "createError": "Seznama ni bilo mogoče ustvariti. Poskusi znova.",
+    "addFailedRemoved": "Nekaterih izdelkov ni bilo mogoče dodati, zato je seznam odstranjen. Poskusi znova.",
+    "addFailedKept": "Nekaterih izdelkov ni bilo mogoče dodati. Seznam je ostal, zato ga lahko dokončaš ali izbrišeš."
+  },
+  "validation": {
+    "productRequired": "Izdelek je obvezen",
+    "watchTypeRequired": "Izberi, kdaj te obvestimo",
+    "thresholdPositive": "Najmanjši popust mora biti večji od 0"
+  },
+  "sectionNav": {
+    "label": "Razdelki spremljanja",
+    "watchedShort": "Spremljani",
+    "suggestionsShort": "Predlogi"
+  }
+}

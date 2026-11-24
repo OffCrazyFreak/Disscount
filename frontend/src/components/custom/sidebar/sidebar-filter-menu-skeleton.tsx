@@ -8,7 +8,6 @@ interface ISidebarFilterMenuSkeletonProps {
   count: number;
 }
 
-/** Stands in for the filter menus while they wait on the URL. */
 export default function SidebarFilterMenuSkeleton({
   count,
 }: ISidebarFilterMenuSkeletonProps) {

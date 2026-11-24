@@ -1,19 +1,23 @@
 "use client";
 
+import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
-import { userService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
+import {
+  proofFailureFrom,
+  type IProofFailure,
+  type ReauthProof,
+} from "@/components/custom/settings/security/reauth/reauth-requests";
 
-// The Sigurnost actions that sit outside the credentials form.
 export function useSecurityActions() {
+  const t = useTranslations("settings");
   const router = useRouter();
   const { logout } = useUser();
   const [revoking, setRevoking] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   async function revokeOtherSessions() {
     setRevoking(true);
@@ -21,30 +25,28 @@ export function useSecurityActions() {
     setRevoking(false);
 
     if (error) {
-      toast.error("Greška pri odjavi ostalih uređaja.");
-      return;
+      toast.error(t("security.actions.revokeFailed"));
+      return false;
     }
-    toast.success("Odjavljeni su svi ostali uređaji.");
+    toast.success(t("security.actions.revoked"));
+    return true;
   }
 
-  async function deleteAccount() {
-    setDeleting(true);
-    try {
-      // Backend profile first: deleting auth first would orphan the row and lock the user out.
-      await userService.deleteCurrentUser();
+  // The server checks the proof, then erases backend data, then the identity, so a refusal leaves the account whole.
+  async function deleteAccount(
+    proof: ReauthProof,
+  ): Promise<IProofFailure | null> {
+    const { error } = await authClient.$fetch("/delete-user", {
+      method: "POST",
+      body: proof,
+    });
+    if (error) return proofFailureFrom(error);
 
-      const { error } = await authClient.deleteUser();
-      if (error) throw new Error(error.message ?? "delete failed");
-
-      await logout();
-      router.replace("/");
-      toast.success("Tvoj račun je obrisan.");
-    } catch {
-      toast.error("Greška pri brisanju računa. Pokušaj ponovo.");
-    } finally {
-      setDeleting(false);
-    }
+    await logout();
+    router.replace("/");
+    toast.success(t("security.actions.deleted"));
+    return null;
   }
 
-  return { revokeOtherSessions, deleteAccount, revoking, deleting };
+  return { revokeOtherSessions, deleteAccount, revoking };
 }
