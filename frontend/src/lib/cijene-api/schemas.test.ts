@@ -200,4 +200,17 @@ describe("storePricesResponseSchema", () => {
       [null, null],
     ]);
   });
+
+  it("makes a comma-decimal store price null instead of reading 1,29 as 1", () => {
+    const parsed = storePricesResponseSchema.parse({
+      store_prices: [
+        wireStorePrice({ regular_price: "1,29", special_price: "1.29" }),
+      ],
+    });
+
+    expect(parsed.store_prices[0]).toMatchObject({
+      regular_price: null,
+      special_price: 1.29,
+    });
+  });
 });
